@@ -14,25 +14,6 @@ protected:
     size_t n, m; // height, width
     using floatType = long double;
 private:
-    Matrix<T> submatrix(size_t start_y, size_t start_x, size_t height, size_t width){
-        if (start_y + height > n || start_x + width > m){
-            throw MatrixIndexError::index_out("Matrix",
-                                              this->dim(),
-                                              {start_y + height, start_x + width});
-        }
-        if (height == 0 || width == 0){ return Matrix<T>(0); }
-
-        Matrix<T> tmp(height, width);
-        for (size_t i = 0; i <= height; ++i){
-            for (size_t j = 0; j <= width; ++j){
-                tmp.matrix[i][j] = matrix[i + start_y][j + start_x];
-            }
-        }
-        return tmp;
-    }
-    Matrix<T> submatrix(size_t start_y, size_t start_x){
-        return submatrix(start_y, start_x, n - start_y, m - start_x);
-    }
     Matrix<T> submatrix_except(size_t row, size_t col){
         Matrix<T> tmp(n - 1, m - 1);
         size_t d_row = 0, d_col = 0;
@@ -55,7 +36,6 @@ public:
     explicit Matrix(size_t n): n(n), m(n), matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, 0))){};
     explicit Matrix(size_t n, size_t m): n(n), m(m), matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, 0))){};
     Matrix(size_t n, size_t m, T value): n(n), m(m), matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, value))){};
-
     Matrix(const Matrix<T> &other): n(other.n), m(other.m), matrix(std::vector<std::vector<T>>(other.matrix)){};
 
     template<typename T_other>
@@ -69,7 +49,7 @@ public:
     explicit Matrix(const std::vector<std::vector<T>> &other){
         n = other.size();
         m = 0;
-        if (n){
+        if (n) {
             m = other[0].size();
         }
         for (auto &r: other){
@@ -84,22 +64,13 @@ public:
     }
 
 
-    [[nodiscard]] sizeType dim() const {return std::make_pair(n, m);}
+    [[nodiscard]] sizeType size() const {return std::make_pair(n, m);}
 
     template<typename T_other>
     bool operator==(const Matrix<T_other> &other){
-        if (dim() != other.dim()) return false;
-        for (size_t i =0; i < dim().first; ++i){
-            for (size_t j = 0; j < dim().second; ++j){
-                if (this->matrix[i][j] != other.matrix[i][j]) return false;
-            }
-        }
-        return true;
-    }
-    bool operator==(const Matrix<T> &other){
-        if (dim() != other.dim()) return false;
-        for (size_t i =0; i < dim().first; ++i){
-            for (size_t j = 0; j < dim().second; ++j){
+        if (size() != other.size()) return false;
+        for (size_t i =0; i < size().first; ++i){
+            for (size_t j = 0; j < size().second; ++j){
                 if (this->matrix[i][j] != other.matrix[i][j]) return false;
             }
         }
@@ -108,29 +79,29 @@ public:
 
     template<typename T_other>
     Matrix<T> &operator*=(const T_other &other){
-        for (size_t i = 0; i < this->dim().first; ++i){
-            for (size_t j = 0; j < this->dim().second; ++j){
-                this->matrix[i][j] *= other;
+        for (size_t i = 0; i < this->size().first; ++i){
+            for (size_t j = 0; j < this->size().second; ++j){
+                this->matrix[i][j] *= static_cast<T>(other);
             }
         }
         return *this;
     }
 
-    Matrix<T> &operator*=(const Matrix& other){
-//        std::cout << "matrix";
-        if (this->dim().second != other.dim().first){
+    template<typename T_other>
+    Matrix<T> &operator*=(const Matrix<T_other>& other){
+        if (this->size().second != other.size().first){
             throw MatrixSizeError::product(
                     "Matrix",
-                    this->dim(),
+                    this->size(),
                     "Matrix",
-                    other.dim().first);
+                    other.size().first);
         }
-        Matrix<T> tmp(this->dim().first, other.dim().second);
+        Matrix<T> tmp(this->size().first, other.size().second);
 
-        for (size_t i = 0; i < tmp.dim().first; ++i){
-            for (size_t j = 0; j < tmp.dim().second; ++j){
-                for (size_t k = 0; k < this->dim().second; ++k){
-                    tmp.matrix[i][j] += this->matrix[i][k] * other.matrix[k][j];
+        for (size_t i = 0; i < tmp.size().first; ++i){
+            for (size_t j = 0; j < tmp.size().second; ++j){
+                for (size_t k = 0; k < this->size().second; ++k){
+                    tmp.matrix[i][j] += this->matrix[i][k] * static_cast<T>(other.matrix[k][j]);
                 }
             }
         }
@@ -143,33 +114,32 @@ public:
         if (other == 0){
             throw ArithmeticException::divByZero("Matrix");
         }
-        for (size_t i = 0; i < this->dim().first; ++i){
-            for (size_t j = 0; j < this->dim().second; ++j){
+        for (size_t i = 0; i < this->size().first; ++i){
+            for (size_t j = 0; j < this->size().second; ++j){
                 this->matrix[i][j] /= other;
             }
         }
         return *this;
     }
 
-    Matrix<T> &operator/=(const Matrix& other){
+    template<typename T_other>
+    Matrix<T> &operator/=(const Matrix<T_other>& other){
         return this *= this->inverse();
     }
 
-//    Matrix<T> operator-(){
-//        return (*this) * -1;
-//    }
     Matrix<T> operator-() const{
         Matrix<T> tmp = *this;
         tmp *= -1;
         return tmp;
     }
+
     template<typename T_other>
     Matrix<T> &operator+=(const Matrix<T_other>& other){
-        if (this->dim() != other.dim()){
+        if (this->size() != other.size()){
             throw MatrixSizeError::not_match("Matrix",
-                                             this->dim(),
+                                             this->size(),
                                              "Matrix",
-                                             other.dim());
+                                             other.size());
         }
         for (size_t x = 0; x < n; ++x){
             for (size_t y = 0; y < m; ++y){
@@ -178,7 +148,8 @@ public:
         }
         return *this;
     }
-    Matrix<T> &operator-=(const Matrix& other){
+    template<typename T_other>
+    Matrix<T> &operator-=(const Matrix<T_other>& other){
         return *this+=(-other);
     }
 
@@ -193,13 +164,14 @@ public:
         std::swap(matrix, tmp);
     }
 
-    Matrix<T> transposed(){
+    Matrix<T> transposed() const {
         Matrix<T> tmp(this);
         tmp.transpose();
         return tmp;
     }
 
-    Matrix<T> get_minor(const std::vector<size_t> &rows, const std::vector<size_t> &columns){
+    /*
+    Matrix<T> get_minor(const std::vector<size_t> &rows, const std::vector<size_t> &columns) const{
         std::set<size_t> tmp_rows(rows.begin(), rows.end()), tmp_columns(columns.begin(), columns.end());
         size_t cnt_rows = tmp_rows.size(), cnt_columns = tmp_columns.size();
 
@@ -224,12 +196,14 @@ public:
 
         return tmp;
     }
+    */
 
-    floatType det() {
-        if (n != m) throw MatrixSizeError::not_square("Matrix", dim());
+    floatType det() const {
+        if (n != m) throw MatrixSizeError::not_square("Matrix", size());
+
         if (n == 0) return 0;
         if (n == 1) return matrix[0][0];
-        if (n == 2) return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+
         short int sign = 1;
         floatType tmp = 0;
         for (int i = 0; i < n; i++) {
@@ -254,21 +228,21 @@ public:
     }
 
     std::vector<T>& operator[](size_t i){
-        if (i >= dim().first)
-            throw MatrixIndexError::index_out("Matrix", dim(), {i, "?"});
+        if (i >= size().first)
+            throw MatrixIndexError::index_out("Matrix", size(), {i, "?"});
         return matrix[i];
     }
     std::vector<T> operator[](size_t i) const {
-        if (i >= dim().first)
-            throw MatrixIndexError::index_out("Matrix", dim(), {i, "?"});
+        if (i >= size().first)
+            throw MatrixIndexError::index_out("Matrix", size(), {i, "?"});
 
         return matrix[i];
     }
 
     floatType norm(){
         floatType tmp = 0;
-        for (size_t i = 0; i < dim().first; ++i){
-            for (size_t j = 0; j < dim().second; ++j){
+        for (size_t i = 0; i < size().first; ++i){
+            for (size_t j = 0; j < size().second; ++j){
                 tmp += static_cast<T>(operator[](i)[j]) * static_cast<T>(operator[](i)[j]);
             }
         }
@@ -289,9 +263,10 @@ public:
     template<typename T_vec>
     static Matrix<floatType> gram(const std::vector<Vector<T_vec>>& vecs){
         Matrix<floatType> tmp(vecs.size());
+
         for (size_t i = 0; i < vecs.size(); ++i){
             for (size_t j = 0; j < vecs.size(); ++j){
-                tmp[i][j] = static_cast<Vector<T_vec>>(vecs[i]) % static_cast<Vector<T_vec>>(vecs[j]);
+                tmp[i][j] = vecs[i] % vecs[j];
             }
         }
         return tmp;
@@ -299,7 +274,7 @@ public:
 };
 
 template<typename T1, typename T2>
-Matrix<T1> operator* (const Matrix<T1>& first, const Matrix<T2>& second){
+Matrix<T1> operator* (const Matrix<T1>& first, const T2& second){
     Matrix<T1> tmp = first;
     tmp *= second;
     return tmp;
@@ -313,16 +288,9 @@ Matrix<T2> operator* (const T1& first, const Matrix<T2>& second){
 }
 
 template<typename T1, typename T2>
-Matrix<T1> operator* (const Matrix<T1>& first, const T2& second){
+Matrix<T1> operator* (const Matrix<T1>& first, const Matrix<T2>& second){
     Matrix<T1> tmp = first;
     tmp *= second;
-    return tmp;
-}
-
-template<typename T1, typename T2>
-Matrix<T1> operator/ (const Matrix<T1>& first, const Matrix<T2>& second){
-    Matrix<T1> tmp = first;
-    tmp /= second;
     return tmp;
 }
 
@@ -333,22 +301,29 @@ Matrix<T1> operator/ (const Matrix<T1>& first, const T2& second){
     return tmp;
 }
 
-template<typename T>
-std::ostream &operator<<(std::ostream &out, const Matrix<T> &mat) {
-    for (size_t i = 0; i < mat.dim().first; ++i) {
-        for (size_t j = 0; j < mat.dim().second; ++j) {
-            out << mat.matrix[i][j] << ' ';
-        }
-        if (i + 1 != mat.dim().first) out << '\n';
-    }
-    return out;
+template<typename T1, typename T2>
+Matrix<T1> operator/ (const Matrix<T1>& first, const Matrix<T2>& second){
+    Matrix<T1> tmp = first;
+    tmp /= second;
+    return tmp;
 }
 
 
+
+template<typename T>
+std::ostream &operator<<(std::ostream &out, const Matrix<T> &mat) {
+    for (size_t i = 0; i < mat.size().first; ++i) {
+        for (size_t j = 0; j < mat.size().second; ++j) {
+            out << mat.matrix[i][j] << ' ';
+        }
+        if (i + 1 != mat.size().first) out << '\n';
+    }
+    return out;
+}
 template<typename T>
 std::istream &operator>>(std::istream &in,  Matrix<T> &mat) {
-    for (size_t i = 0; i < mat.dim().first; ++i) {
-        for (size_t j = 0; j < mat.dim().second; ++j) {
+    for (size_t i = 0; i < mat.size().first; ++i) {
+        for (size_t j = 0; j < mat.size().second; ++j) {
             in >> mat.matrix[i][j];
         }
     }

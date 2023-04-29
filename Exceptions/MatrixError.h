@@ -9,63 +9,63 @@
 #    define _NOEXCEPT noexcept
 
 class MatrixError: public LowLevelException{
+protected:
+    typedef typename std::pair<size_t, size_t> size_type;
+    typedef typename std::pair<msgType, msgType> size_title_type;
+    typedef typename std::pair<size_t, msgType> half_size_type;
+    typedef typename std::pair<msgType, size_t> rhalf_size_type;
 public:
-    using sizeType = std::pair<size_t, size_t>;
-    using sizeTitleType = std::pair<msgType, msgType>;
-    using halfSizeType = std::pair<size_t, msgType>;
-    using rhalfSizeType = std::pair<msgType, size_t>;
-
     using LowLevelException::LowLevelException;
 
-    static msgType msgMatSz(const sizeType &mat_sz){
+    static msgType msgMatSz(const size_type &mat_sz){
         return std::to_string(mat_sz.first) + "x" +
                std::to_string(mat_sz.second);
     }
-    static msgType msgMatSz(const sizeTitleType &mat_sz){
+    static msgType msgMatSz(const size_title_type &mat_sz){
         return mat_sz.first + "x" + mat_sz.second;
     }
-    static msgType msgMatSz(const halfSizeType &mat_sz){
+    static msgType msgMatSz(const half_size_type &mat_sz){
         return std::to_string(mat_sz.first) + "x" + mat_sz.second;
     }
-    static msgType msgMatSz(const rhalfSizeType &mat_sz){
+    static msgType msgMatSz(const rhalf_size_type &mat_sz){
         return mat_sz.first + "x" + std::to_string(mat_sz.second);
     }
 };
 
-class MatrixChangeError: public MatrixError{
-public:
-    using MatrixError::MatrixError;
-
-    static MatrixChangeError set_item(const std::string& name, const std::string& type_name){
-    //        char* tmp = "sdafsad";
-    //TODO: wtf
-        msgType msg = "Wrong item value: "+name+"'s item must be int | float, not " + type_name;
-        return MatrixChangeError(msg);
-    }
-};
+//class MatrixChangeError: public MatrixError{
+//public:
+//    using MatrixError::MatrixError;
+//
+////    static MatrixChangeError set_item(const msgType& name, const msgType& type_name){
+////    //        char* tmp = "sdafsad";
+////    //TODO: wtf
+////        msgType msg = "Wrong item value: "+name+"'s item must be int | float, not " + type_name;
+////        return MatrixChangeError(msg);
+////    }
+//};
 
 class MatrixSizeError: public MatrixError{
 protected:
-    static msgType _not_match_size(const std::string& obj_name, const sizeType &expected_sz,
-                                   const sizeType &found_sz){
+    static msgType _not_match_size(const msgType &obj_name, const size_type &expected_sz,
+                                   const size_type &found_sz){
         msgType tmp = obj_name +
                      " size expected: " + msgMatSz(expected_sz) +
                      ", but found: " + msgMatSz(found_sz);
         return tmp;
     }
-    static msgType _not_match_size(const std::string &obj_name, const sizeTitleType &expected_sz,
-                                   const sizeType &found_sz){
+    static msgType _not_match_size(const msgType &obj_name, const size_title_type &expected_sz,
+                                   const size_type &found_sz){
         msgType tmp = obj_name +
                       " size expected: " + msgMatSz(expected_sz) +
                       ", but found: " + msgMatSz(found_sz);
         return tmp;
     }
-    static msgType _not_valid(const std::string &first_mat_name,
-                                      const sizeType &first_mat_sz,
-                                      const std::string &second_mat_name,
-                                      const sizeType &second_mat_sz,
-                                      const sizeTitleType &first_mat_sz_title={"N", "M"},
-                                      const sizeTitleType &second_mat_sz_title={"N", "M"},
+    static msgType _not_valid(const msgType &first_mat_name,
+                                      const size_type &first_mat_sz,
+                                      const msgType &second_mat_name,
+                                      const size_type &second_mat_sz,
+                                      const size_title_type &first_mat_sz_title={"N", "M"},
+                                      const size_title_type &second_mat_sz_title={"N", "M"},
                                       const msgType& title="ValidError"){
         return title +": "+
                                _not_match_size(first_mat_name,
@@ -77,9 +77,9 @@ protected:
                                                second_mat_sz
         );
     }
-    static msgType _not_valid(const std::string &first_mat_name,
-                                      const sizeType &first_mat_sz,
-                                      const sizeTitleType &first_mat_sz_title={"N", "M"},
+    static msgType _not_valid(const msgType &first_mat_name,
+                                      const size_type &first_mat_sz,
+                                      const size_title_type &first_mat_sz_title={"N", "M"},
                                       const msgType& title="ValidError"){
         return title +": "+
                                _not_match_size(first_mat_name,
@@ -89,8 +89,8 @@ protected:
 
     static msgType _not_valid(const std::vector<
                                             std::pair<
-                                                    std::string,
-                                                    std::pair<sizeType, sizeTitleType>
+                                                    msgType,
+                                                    std::pair<size_type, size_title_type>
                                             >> &data,
                               const msgType& title="ValidError"){
         msgType msg = title + ": ";
@@ -112,17 +112,17 @@ protected:
 
 public:
     using MatrixError::MatrixError;
-    static MatrixSizeError not_square(const std::string &mat_name,
-                                      const sizeType &mat_sz){
+    static MatrixSizeError not_square(const msgType &mat_name,
+                                      const size_type &mat_sz){
         return MatrixSizeError(_not_valid(
                 mat_name,
                 mat_sz,
                 {"N", "N"},
                 "NotSquare"));
     }
-    static MatrixSizeError not_rectangular(const std::string &mat_name,
-                                           const sizeType &expected_mat_sz,
-                                           const sizeType &elem_sz,
+    static MatrixSizeError not_rectangular(const msgType &mat_name,
+                                           const size_type &expected_mat_sz,
+                                           const size_type &elem_sz,
                                            const msgType &title="NotRectangular"){
         return MatrixSizeError(title + ": " + mat_name +
                                " size expected: " + msgMatSz(expected_mat_sz) +
@@ -131,18 +131,18 @@ public:
     };
     static MatrixSizeError not_matches(const std::vector<
             std::pair<
-                    std::string,
-                    std::pair<sizeType, sizeTitleType>
+                    msgType,
+                    std::pair<size_type, size_title_type>
             >> &data,
                                      const msgType& title="MatchError"){
         return MatrixSizeError(_not_valid(data, title));
     }
-    static MatrixSizeError not_match(const std::string &first_mat_name,
-                                     const sizeType &first_mat_sz,
-                                     const std::string &second_mat_name,
-                                     const sizeType &second_mat_sz,
-                                     const sizeTitleType &first_mat_sz_title={"N", "M"},
-                                     const sizeTitleType &second_mat_sz_title={"N", "M"},
+    static MatrixSizeError not_match(const msgType &first_mat_name,
+                                     const size_type &first_mat_sz,
+                                     const msgType &second_mat_name,
+                                     const size_type &second_mat_sz,
+                                     const size_title_type &first_mat_sz_title={"N", "M"},
+                                     const size_title_type &second_mat_sz_title={"N", "M"},
                                      const msgType &title="MatchError"){
         return MatrixSizeError(_not_valid(
                 first_mat_name, first_mat_sz, second_mat_name, second_mat_sz,
@@ -151,10 +151,10 @@ public:
                 title));
     }
 
-    static MatrixSizeError product(const std::string &first_mat_name,
-                                   const sizeType &first_mat_sz,
-                                   const std::string &second_mat_name,
-                                   const sizeType &second_mat_sz){
+    static MatrixSizeError product(const msgType &first_mat_name,
+                                   const size_type &first_mat_sz,
+                                   const msgType &second_mat_name,
+                                   const size_type &second_mat_sz){
         return MatrixSizeError(_not_valid(
                 first_mat_name, first_mat_sz, second_mat_name, second_mat_sz,
                 {"N", "M"},
@@ -163,10 +163,10 @@ public:
     }
 
 
-//    static MatrixSizeError out_range(const std::string &first_mat_name,
-//                                     const sizeType &first_mat_sz,
-//                                     const std::string &second_mat_name,
-//                                     const sizeType &second_mat_sz,
+//    static MatrixSizeError out_range(const msgType &first_mat_name,
+//                                     const size_type &first_mat_sz,
+//                                     const msgType &second_mat_name,
+//                                     const size_type &second_mat_sz,
 //                                     const msgType &title="OutOfRangeError: "){
 //
 //    };
@@ -177,23 +177,23 @@ class MatrixIndexError: public MatrixError {
 
 public:
     using MatrixError::MatrixError;
-    static MatrixIndexError index_out(const std::string &mat_name,
-                                     const sizeType &mat_sz,
-                                     const sizeType &indexes){
+    static MatrixIndexError index_out(const msgType &mat_name,
+                                     const size_type &mat_sz,
+                                     const size_type &indexes){
         return MatrixIndexError("IndexOut: Size of " + mat_name +
                                 " is " + msgMatSz(mat_sz) +
                                 ", but try to get " + msgMatSz(indexes));
     }
-    static MatrixIndexError index_out(const std::string &mat_name,
-                                      const sizeType &mat_sz,
-                                      const halfSizeType &indexes){
+    static MatrixIndexError index_out(const msgType &mat_name,
+                                      const size_type &mat_sz,
+                                      const half_size_type &indexes){
         return MatrixIndexError("IndexOut: Size of " + mat_name +
                                 " is " + msgMatSz(mat_sz) +
                                 ", but try to get " + msgMatSz(indexes));
     }
-    static MatrixIndexError index_out(const std::string &mat_name,
-                                      const sizeType &mat_sz,
-                                      const rhalfSizeType &indexes){
+    static MatrixIndexError index_out(const msgType &mat_name,
+                                      const size_type &mat_sz,
+                                      const rhalf_size_type &indexes){
         return MatrixIndexError("IndexOut: Size of " + mat_name +
                                 " is " + msgMatSz(mat_sz) +
                                 ", but try to get " + msgMatSz(indexes));

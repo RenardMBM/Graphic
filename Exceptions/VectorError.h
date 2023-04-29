@@ -8,37 +8,75 @@
 #include "MatrixError.h"
 
 class VectorError: MatrixError{
+public:
     using MatrixError::MatrixError;
+protected:
+    typedef size_t sizeType;
+
 };
 
-class VectorSizeError: MatrixSizeError{
+class VectorSizeError: VectorError, MatrixSizeError{
 public:
     using MatrixSizeError::MatrixSizeError;
 
     static VectorSizeError lessThen(
-            msgType vec1_name,
-            sizeType vec1_sz,
-            msgType vec2_name,
-            sizeType vec2_sz
+            const msgType& first_vec_name,
+            sizeType first_vec_size,
+            const msgType& second_vec_name,
+            sizeType second_vec_size,
+            bool is_first_row=false,
+            bool is_second_row=false
             ){
-        return VectorSizeError("Size of " + vec1_name +
-                                " = " + msgMatSz(vec1_sz) +
-                                "less then size of "+ vec2_name +
-                                " = " + msgMatSz(vec2_sz));
+        MatrixError::size_type first_size= {first_vec_size, 1},
+                second_size={second_vec_size, 1};
+        if (is_first_row) std::swap(first_size.first, first_size.second);
+        if (is_second_row) std::swap(second_size.first, second_size.second);
+
+        return VectorSizeError("Size of " + first_vec_name +
+                                " = " + msgMatSz(first_size) +
+                                "less then size of "+ second_vec_name +
+                                " = " + msgMatSz(second_size));
     }
 
-    static VectorSizeError not_match(const std::string &first_vec_name,
-              const sizeType &first_vec_sz,
-              const std::string &second_vec_name,
-              const sizeType &second_vec_sz){
+    static VectorSizeError not_match(
+            const msgType &first_vec_name,
+            const sizeType &first_vec_size,
+            const msgType &second_vec_name,
+            const sizeType &second_vec_size,
+            bool is_first_row=false,
+            bool is_second_row=false,
+            const msgType &first_vec_size_title="N",
+            const msgType &second_vec_size_title="N",
+            const msgType &title="MatchError"
+            ){
+        MatrixError::size_type first_size= {first_vec_size, 1},
+        second_size={second_vec_size, 1};
+        MatrixError::size_title_type first_size_title = {first_vec_size_title, "1"},
+        second_size_title = {second_vec_size_title, "1"};
+        if (is_first_row) {
+            std::swap(first_size.first, first_size.second);
+            std::swap(first_size_title.first, first_size_title.second);
+        }
+        if (is_second_row) {
+            std::swap(second_size.first, second_size.second);
+            std::swap(second_size_title.first, second_size_title.second);
+        }
+
         return VectorSizeError(_not_valid(
                 first_vec_name,
-                first_vec_sz,
+                first_size,
                 second_vec_name,
-                second_vec_sz,
-                {"N", "1"},
-                {"N", "1"},
-                "MatchError" ));
+                second_size,
+                first_size_title,
+                second_size_title,
+                title));
+    }
+    
+    static VectorSizeError product(const msgType &first_vec_name, 
+                                    const sizeType& first_vec_size,
+                                    const msgType &second_vec_name,
+                                    const sizeType& second_vec_size){
+
     }
 };
 

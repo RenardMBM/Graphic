@@ -7,7 +7,7 @@
 #include "./LowLevel/Matrix.h"
 #include "./LowLevel/Vector.h"
 #include "./LowLevel/VectorSpace.h"
-#include "./LowLevel/Pointer.h"
+#include "./LowLevel/Point.h"
 #include "./LowLevel/CoordinateSystem.h"
 
 

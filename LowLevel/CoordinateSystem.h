@@ -2,7 +2,7 @@
 #define GRAPHIC_COORDINATESYSTEM_H
 #include "./Matrix.h"
 #include "./Vector.h"
-#include "./Pointer.h"
+#include "./Point.h"
 #include "./VectorSpace.h"
 
 template <typename T>
@@ -11,9 +11,9 @@ private:
     using floatType = long double;
 
 public:
-    Pointer<T> initial_point;
+    Point<T> initial_point;
     VectorSpace<T> space;
-    CoordinateSystem(Pointer<T> initial, VectorSpace<T> basis): initial_point(initial), space(basis){};
+    CoordinateSystem(Point<T> initial, VectorSpace<T> basis): initial_point(initial), space(basis){};
 
     template<typename T_other>
     bool operator==(const CoordinateSystem<T_other> &other){

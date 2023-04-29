@@ -1,10 +1,10 @@
 #ifndef GRAPHIC_VECTORSPACE_H
 #define GRAPHIC_VECTORSPACE_H
 #include "Vector.h"
-#include "Pointer.h"
+#include "Point.h"
 
 template <typename T>
-class Pointer;
+class Point;
 
 template<typename T>
 class VectorSpace{
@@ -16,13 +16,13 @@ private:
     public:
     VectorSpace(const std::vector<Vector<T>> &basis): basis(basis.begin(),basis.end()),
                                                       gram(Matrix<T>::gram(basis)),
-                                                      _dim({(basis.size()? basis[0].dim(): 0),
+                                                      _dim({(basis.size() ? basis[0].size() : 0),
                                                             basis.size()}){
         for (const Vector<T> &b: basis){
-            if (b.dim() != _dim.first){
+            if (b.size() != _dim.first){
                 throw MatrixSizeError::not_rectangular("Basis",
                                                        _dim,
-                                                       {b.dim(), 1},
+                                                       {b.size(), 1},
                                                        "NotRectangularBasis");
             }
         }
@@ -44,11 +44,11 @@ private:
     };
 
     Vector<T> vector_product(const Vector<T> &first, const Vector<T> &second){
-        if (_dim.first != 3 || _dim.second != 3|| first.dim() != 3 || second.dim() != 3){
+        if (_dim.first != 3 || _dim.second != 3 || first.size() != 3 || second.size() != 3){
             throw MatrixSizeError::not_matches({
-                                                       {"Basis", {_dim, {"3", "3"}}},
-                                                       {"Vector", {{first.dim(), 1}, {"3", 1}}},
-                                                       {"Vector", {{second.dim(), 1}, {"3", 1}}}
+                                                       {"Basis", {_dim,                {"3", "3"}}},
+                                                       {"Vector", {{first.size(),  1}, {"3", 1}}},
+                                                       {"Vector", {{second.size(), 1}, {"3", 1}}}
             }, "VectorProductOnly3D");
         }
 
@@ -58,13 +58,13 @@ private:
                 tmp3 * (first[0] * second[1] - first[1] * second[0]);
     }
 
-    Vector<T> as_vector(const Pointer<T> &pt){
-        if (pt.dimension() != _dim.second){
-            throw MatrixSizeError::not_match("Pointer", {pt.dimension(), 1},
+    Vector<T> as_vector(const Point<T> &pt){
+        if (pt.sz() != _dim.second){
+            throw MatrixSizeError::not_match("Point", {pt.sz(), 1},
                                              "VectorSpace(basis)", _dim,
                                              {"N", "1"}, {"M", "N"},
                                              "notMatchDimPointerAndVP");
-            throw std::invalid_argument("VectorSpace and Pointer dimensions don't match");
+            throw std::invalid_argument("VectorSpace and Point dimensions don't match");
         }
         Vector<T> tmp(_dim.first);
         tmp *= 0;
