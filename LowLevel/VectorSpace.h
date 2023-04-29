@@ -14,7 +14,7 @@ private:
     Matrix<floatType> gram;
     std::pair<size_t, size_t> _dim;
     public:
-    VectorSpace(const std::vector<Vector<T>> &basis): basis(basis.begin(),basis.end()),
+    explicit VectorSpace(const std::vector<Vector<T>> &basis): basis(basis.begin(),basis.end()),
                                                       gram(Matrix<T>::gram(basis)),
                                                       _dim({(basis.size() ? basis[0].size() : 0),
                                                             basis.size()}){

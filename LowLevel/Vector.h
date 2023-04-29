@@ -34,6 +34,7 @@ public:
     using floatType = typename Matrix<T>::floatType;
 
     explicit Vector(const size_t &n): Matrix<T>(n, 1), isTransposed(false) {};
+    explicit Vector(const size_t &n, const T &value): Matrix<T>(n, 1, value), isTransposed(false) {};
     explicit Vector(const std::vector<std::vector<T>> &vec): Matrix<T>(vec), isTransposed(false) {};
     explicit Vector(const std::vector<T> &vec): Matrix<T>(vec.size(), 1), isTransposed(true) {
         for (size_t i = 0; i < vec.size(); ++i){this->matrix[i][0] = vec[i];}
@@ -55,7 +56,7 @@ public:
     }
 
     floatType length(){
-        return sqrt(this->operator%(this));
+        return sqrt(this->operator%(*this));
     }
 
     template<typename T_other>
@@ -118,6 +119,7 @@ public:
         tmp *= -1;
         return tmp;
     }
+
     Vector<T> &operator+=(const Vector& other){
         if (this->size() > other.size()){
             throw VectorSizeError::lessThen("Vector", this->size(),
@@ -137,10 +139,12 @@ public:
         if (this->size() != other.size()){
             throw VectorSizeError::not_match(
                     "Vector",
-                    {this->size(), 1},
+                    this->size(),
                     "Vector",
-                    {other.size(), 1},
-                    false, false, "N", "N",
+                    other.size(),
+                    this->isTransposed,
+                    other.isTransposed,
+                    "N", "N",
                     "ScalarProductSizeError");
         }
         floatType tmp = 0;
@@ -151,7 +155,6 @@ public:
     }
     Vector<T> operator^(const Vector<T>& other){ // vector product
         if (this->size() != 3 || other.size() != 3){
-//            VectorSizeError::not_match()
             throw VectorSizeError::not_match("Vector", this->size(),
                                              "Vector", other.size(),
                                              false,false,
@@ -196,12 +199,14 @@ std::ostream &operator<<(std::ostream &out, const Vector<T> &vec) {
 //}
 
 
-//template<typename T1, typename T2>
-//Vector<T2> operator/(const T1& first, const Vector<T2>& second){
-//    Vector<T1> tmp = second;
-//    tmp /= first;
-//    return tmp;
-//}
+template<typename T1, typename T2>
+Vector<T2> operator/(const T1& first, const Vector<T2>& second){
+    Vector<T1> tmp(second.size(), first);
+    for (size_t i = 0; i < second.size(); ++i){
+        tmp[i] /= second[i];
+    }
+    return tmp;
+}
 
 
 
@@ -263,6 +268,4 @@ T BilinearForm(Matrix<T> mat, Vector<T> vec1, Vector<T> vec2){
     }
     return tmp;
 }
-
-
 #endif //GRAPHIC_VECTOR_H
