@@ -1,7 +1,9 @@
 #include "gtest/gtest.h"
 
 #include "../../LowLevel/Matrix.h"
+#include "../../LowLevel/Vector.h"
 #include "../../Exceptions/MatrixError.h"
+#include "../../Exceptions/VectorError.h"
 
 
 //  region constructs
@@ -432,10 +434,83 @@ TEST(MatrixStaticMethodsTests, MatrixIdentityPositive){
 }
 //  endregion
 
-//  region
+//  region gram
 TEST(MatrixStaticMethodsTests, MatrixGramOneVector){
+    std::vector<Vector<int>> tmp = {Vector<int>(1, 1)};
+    Matrix<int> gr_mat = Matrix<int>::gram<int>(tmp),
+            res_mat = Matrix<int>({{1}});
+
+    ASSERT_EQ(gr_mat, res_mat);
+}
+
+TEST(MatrixStaticMethodsTests, MatrixGramIntVectors){
+    std::vector<Vector<int>> tmp = {Vector<int>({1, 0}),
+                                    Vector<int>({0, 1})};
+    Matrix<int> gr_mat = Matrix<int>::gram<int>(tmp),
+            res_mat = Matrix<int>({
+                {1, 0},
+                {0, 1}
+            });
+
+    ASSERT_EQ(gr_mat, res_mat);
+}
+TEST(MatrixStaticMethodsTests, MatrixGramIntVectorsNotOrt){
+    std::vector<Vector<int>> tmp = {Vector<int>({1, 2}),
+                                    Vector<int>({2, 1})};
+    Matrix<int> gr_mat = Matrix<int>::gram<int>(tmp),
+            res_mat = Matrix<int>({
+                                          {5, 4},
+                                          {4, 5}
+                                  });
+
+    ASSERT_EQ(gr_mat, res_mat);
+}
+
+TEST(MatrixStaticMethodsTests, MatrixGramFloatVectors){
+    std::vector<Vector<float>> tmp = {Vector<float>({0.5, 0}),
+                                    Vector<float>({0, 0.7})};
+    Matrix<float> gr_mat = Matrix<float>::gram<float>(tmp),
+            res_mat = Matrix<float>({
+                                          {0.25, 0},
+                                          {0, 0.49}
+                                  });
+
+    ASSERT_TRUE(res_mat.equalPrecision(gr_mat, 10e-5));
+}
+
+TEST(MatrixStaticMethodsTests, MatrixGramFloatVectorsNotOrt){
+    std::vector<Vector<float>> tmp = {Vector<float>({1.5, 2.4}),
+                                      Vector<float>({0.3, 0.7})};
+
+    Matrix<float> gr_mat = Matrix<float>::gram<float>(tmp),
+            res_mat = Matrix<float>({
+                                            {8.01, 2.13},
+                                            {2.13, 0.58}
+                                    });
+    ASSERT_TRUE(res_mat.equalPrecision(gr_mat, 10e-5));
+}
+
+TEST(MatrixStaticMethodsTests, MatrixGramVectorSizeThree){
+    std::vector<Vector<int>> tmp = {Vector<int>({1, 2, 3}),
+                                    Vector<int>({2, 1, 17}),
+                                    Vector<int>({13, 3, 32})};
+    Matrix<int> gr_mat = Matrix<int>::gram<int>(tmp),
+            res_mat = Matrix<int>({
+                                          {14, 55, 115},
+                                          {55, 294, 573},
+                                          {115, 573, 1202}
+                                  });
+    ASSERT_EQ(gr_mat, res_mat);
+}
+
+TEST(MatrixStaticMethodsTests, MatrixGramVectorDiffSize){
+    std::vector<Vector<int>> tmp = {Vector<int>({1, 2, 3}),
+                                    Vector<int>({2, 1, 17, 14}),
+                                    Vector<int>({13, 3, 32})};
+    ASSERT_THROW(Matrix<int>::gram<int>(tmp), VectorSizeError);
 
 }
+
 //  endregion
 //  endregion
 

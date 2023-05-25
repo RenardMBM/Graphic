@@ -295,12 +295,12 @@ public:
     }
 
     template<typename T_vec>
-    static Matrix<floatType> gram(const std::vector<Vector<T_vec>>& vecs){
-        Matrix<floatType> tmp(vecs.size());
+    static Matrix<T_vec> gram(const std::vector<Vector<T_vec>>& vecs){
+        Matrix<T_vec> tmp(vecs.size());
 
         for (size_t i = 0; i < vecs.size(); ++i){
             for (size_t j = 0; j < vecs.size(); ++j){
-                tmp[i][j] = static_cast<floatType>(static_cast<Vector<T_vec>>(vecs[i]) % static_cast<Vector<T_vec>>(vecs[j]));
+                tmp[i][j] = static_cast<Vector<T_vec>>(vecs[i]) % static_cast<Vector<T_vec>>(vecs[j]);
             }
         }
         return tmp;
