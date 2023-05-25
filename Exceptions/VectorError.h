@@ -72,11 +72,24 @@ public:
                 title));
     }
     
-    static VectorSizeError product(const msgType &first_vec_name, 
-                                    const sizeType& first_vec_size,
-                                    const msgType &second_vec_name,
-                                    const sizeType& second_vec_size){
-
+    static VectorSizeError product(const msgType &first_vec_name,
+                                   const sizeType &first_vec_size,
+                                   const msgType &second_vec_name,
+                                   const sizeType &second_vec_size,
+                                   bool is_first_row=false,
+                                   bool is_second_row=false,
+                                   const msgType &first_vec_size_title="N",
+                                   const msgType &second_vec_size_title="N",
+                                   const msgType &title="VectorProductError"){
+        return VectorSizeError::not_match(first_vec_name,
+                                          first_vec_size,
+                                          second_vec_name,
+                                          second_vec_size,
+                                          is_first_row,
+                                          is_second_row,
+                                          first_vec_size_title,
+                                          second_vec_size_title,
+                                          title);
     }
 };
 

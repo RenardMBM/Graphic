@@ -25,25 +25,78 @@ private:
             }
         }
     }
+
+    using mulVecByVecTypes = std::variant<Matrix<T>, T>;
 protected:
     size_t _size() const{
         return this->n;
     }
 public:
-    bool isTransposed;
+    bool isTransposed;  // default(false) column
     using floatType = typename Matrix<T>::floatType;
 
+    floatType EPS = 10e-5;
+
+    //region constructs
     explicit Vector(const size_t &n): Matrix<T>(n, 1), isTransposed(false) {};
     explicit Vector(const size_t &n, const T &value): Matrix<T>(n, 1, value), isTransposed(false) {};
-    explicit Vector(const std::vector<std::vector<T>> &vec): Matrix<T>(vec), isTransposed(false) {};
     explicit Vector(const std::vector<T> &vec): Matrix<T>(vec.size(), 1), isTransposed(true) {
         for (size_t i = 0; i < vec.size(); ++i){this->matrix[i][0] = vec[i];}
     };
+    explicit Vector(const std::vector<std::vector<T>> &vec): Matrix<T>(vec), isTransposed(false) {};
+    template<typename T_other>
+    explicit Vector(const Vector<T_other> &other){
+        this->isTransposed = other.isTransposed;
+        this->n = other.size(); this->m = 1;
+        this->matrix = std::vector<std::vector<T>>(this->n, std::vector<T>(this->m));
+        for (size_t i = 0 ; i < this->n; ++i){
+            this->matrix[i][0] = static_cast<T>(other[i]);
+        }
+    };
+    // endregion
 
-    [[nodiscard]] size_t size() const {
-        return this->n;
+    // region methods
+    size_t size() const {
+        return _size();
     }
 
+    floatType length(){
+        return sqrt(this->operator%(*this));
+    }
+
+    Vector<floatType> normalize(){
+        Vector<floatType> tmp(*this);
+        floatType ln = this->length();
+        for (size_t i = 0; ln != 0 && i < this->size(); ++i){
+            tmp[i] /= ln;
+        }
+        return tmp;
+    }
+
+    template<typename T_other>
+    bool equalPrecision(const Vector<T_other>& other, floatType precision=-1){
+        if (precision < 0) precision = EPS;
+        if (this->size() != other.size()) return false;
+        for (size_t i =0; i < this->size(); ++i){
+            if (std::max(this->operator[](i), static_cast<T>(other[i])) -
+                    std::min(this->operator[](i), static_cast<T>(other[i])) > precision)
+                    return false;
+        }
+        return true;
+    }
+
+    void transpose(){
+        isTransposed = !isTransposed;
+    }
+
+    Vector<T> transposed(){
+        Vector<T> tmp = *this;
+        tmp.transpose();
+        return tmp;
+    }
+    // endregion
+
+    // region operators
     T& operator[](size_t i){
         if (i >= this->size())
             throw MatrixIndexError::index_out("Vector", {size(), 1}, {i, "0"});
@@ -51,67 +104,96 @@ public:
     }
     T operator[](size_t i) const{
         if (i >= this->size())
-            throw MatrixIndexError::index_out("Matrix", {size(), 1}, {i, "0"});
+            throw MatrixIndexError::index_out("Vector", {size(), 1}, {i, "0"});
         return this->matrix[i][0];
     }
 
-    floatType length(){
-        return sqrt(this->operator%(*this));
+
+    // region product
+    template<typename T_other> // product with scalar
+    Vector<T> operator*(const T_other& other){
+        Vector<T> tmp = *this;
+        for (size_t i = 0; i < tmp.size(); ++i)
+            tmp[i] *= static_cast<T>(other);
+        return tmp;
     }
 
-    template<typename T_other>
-    bool operator==(const Vector<T_other> &other){
-        if (this->size() != other.size()) return false;
-        for (size_t i = 0; i < size(); ++i){
-            if (this->operator[](i) != other[i]) return false;
+    template<typename T_other> // multiplication row by column
+    auto operator* (const Vector<T_other> &other){
+        if (this->isTransposed && !other.isTransposed && this->size() == other.size()){
+            T tmp = 0;
+            for (size_t i = 0; i < this->size(); ++i){
+                tmp += this->operator[](i) * static_cast<T>(other.operator[](i));
+            }
+            return mulVecByVecTypes(tmp);
         }
-        return true;
+
+        if (!this->isTransposed && other.isTransposed){ // multiplication column by row
+            Matrix<T> tmp(this->size(), other.size());
+            for (size_t i = 0; i < this->size(); ++i){
+                for (size_t j = 0; j < other.size(); ++j){
+                    tmp.matrix[i][j] = this->operator[](i) * static_cast<T>(other.operator[](j));
+                }
+            }
+            return mulVecByVecTypes(tmp);
+        }
+
+        throw VectorSizeError::product(
+                "Vector",
+                this->size(),
+                "Vector",
+                other.size(),
+                this->isTransposed,
+                other.isTransposed
+        );
     }
-    bool operator==(const Vector<T> &other){
-        if (this->size() != other.size()) return false;
-        for (size_t i = 0; i < size(); ++i){
-            if (this->operator[](i) != other[i]) return false;
+
+    template<typename T_other> // product with matrix
+    Vector<T> operator*(const Matrix<T_other> &other){
+        if (!this->isTransposed || this->size() != other.size().first){
+            std::pair<size_t, size_t> tmp_sz = {1, this->size()};
+            if (!this->isTransposed) std::swap(tmp_sz.first, tmp_sz.second);
+            throw MatrixSizeError::product("Vector",
+                                           tmp_sz,
+                                           "Matrix",
+                                           other.size());
         }
-        return true;
+        Vector<T> tmp(other.size().second);
+        for (size_t i = 0; i < tmp.size(); ++i){
+            tmp[i] = 0;
+            for (size_t j = 0; j < this->size(); ++j){
+                tmp[i] += this->operator[](j) * static_cast<T>(other[j][i]);
+            }
+        }
+        tmp.isTransposed = true;
+        return tmp;
     }
 
     template<typename T_other>
     Vector<T> &operator*=(const T_other &other){
-        for (size_t i = 0; i < this->size(); ++i){
-            this->operator[](i) *= other;
-        }
+        Vector<T> tmp(*this);
+        tmp = tmp.operator*(other);
+        *this = tmp;
         return *this;
     }
+    // endregion
+
+    template<typename T_other>
+    Vector<T> operator/(const T_other &other){
+        Vector<T> tmp = *this;
+        tmp /= other;
+        return tmp;
+    }
+
     template<typename T_other>
     Vector<T> &operator/=(const T_other &other){
         if (other == 0){
             throw ArithmeticException::divByZero("Vector");
         }
         for (size_t i = 0; i < this->size(); ++i){
-            this->operator[](i) /= other;
+            this->operator[](i) /= static_cast<T>(other);
         }
         return *this;
-    }
-
-
-    template<typename T_other>
-    Vector<T_other> operator*(const T_other& second){
-        Vector<T_other> tmp = *this;
-        tmp *= second;
-        return tmp;
-    }
-
-
-    template<typename T_other>
-    Matrix<T> operator*(const Vector<T_other> &second){
-        if (this->isTransposed || !second.isTransposed) throw MatrixError("column * row");
-        _productColumnRow();
-    }
-
-    template<typename T_other>
-    T operator*(const Vector<T_other> &second){
-        if (!this->isTransposed || second.isTransposed) throw MatrixError("");
-        _productRowColumn();
     }
 
     Vector<T> operator-() const{
@@ -121,13 +203,9 @@ public:
     }
 
     Vector<T> &operator+=(const Vector& other){
-        if (this->size() > other.size()){
-            throw VectorSizeError::lessThen("Vector", this->size(),
-                                            "Vector", other.size());
-        }
-
         for (size_t i = 0; i < std::min(this->size(), other.size()); ++i){
-            this->operator[](i) += other[i];
+            if (i < other.size())
+                this->operator[](i) += static_cast<T>(other[i]);
         }
         return *this;
     }
@@ -135,7 +213,9 @@ public:
         return *this+=(-other);
     }
 
-    floatType operator%(const Vector& other){ // scalar product
+    // region vector_operator
+    template<typename T_other>
+    T operator%(const Vector<T_other>& other){ // scalar product
         if (this->size() != other.size()){
             throw VectorSizeError::not_match(
                     "Vector",
@@ -149,11 +229,12 @@ public:
         }
         floatType tmp = 0;
         for (size_t i = 0; i < this->size(); ++i){
-            tmp += this->operator[](i) * other[i];
+            tmp += this->operator[](i) * static_cast<T>(other[i]);
         }
         return tmp;
     }
-    Vector<T> operator^(const Vector<T>& other){ // vector product
+    template<typename T_other>
+    Vector<T> operator^(const Vector<T_other>& other){ // vector product
         if (this->size() != 3 || other.size() != 3){
             throw VectorSizeError::not_match("Vector", this->size(),
                                              "Vector", other.size(),
@@ -164,39 +245,37 @@ public:
         }
         Vector<T> tmp(3);
 
-        tmp[0] = this->operator[](1) * other[2] - this->operator[](2) * other[1];
-        tmp[1] = this->operator[](2) * other[0] - this->operator[](0) * other[2];
-        tmp[2] = this->operator[](0) * other[1] - this->operator[](1) * other[0];
+        tmp[0] = this->operator[](1) * static_cast<T>(other[2]) - this->operator[](2) * static_cast<T>(other[1]);
+        tmp[1] = this->operator[](2) * static_cast<T>(other[0]) - this->operator[](0) * static_cast<T>(other[2]);
+        tmp[2] = this->operator[](0) * static_cast<T>(other[1]) - this->operator[](1) * static_cast<T>(other[0]);
         return tmp;
     }
-
-    Vector<floatType> normalize(){
-        Vector<floatType> tmp(this->size());
-        floatType sz = this->length();
-        for (size_t i = 0; sz != 0 && i < this->size(); ++i){
-            tmp[i] = this->operator[](i) / sz;
-        }
-        return tmp;
-    }
+    // endregion
+    // endregion
 };
 
-
-template<typename T>
-std::ostream &operator<<(std::ostream &out, const Vector<T> &vec) {
-    for (size_t i = 0; i < vec.size(); ++i) {
-        out << vec[i];
-        if (i + 1 != vec.size()) out << '\n';
-    }
-    return out;
+template<typename T1, typename T2>
+Vector<T1> operator+ (const Vector<T1>& first, const Vector<T2>& second){
+    Vector<T1> tmp = first;
+    tmp += second;
+    return tmp;
 }
 
+template<typename T1, typename T2>
+Vector<T1> operator- (const Vector<T1>& first, const Vector<T2>& second){
+    Vector<T1> tmp = first;
+    tmp -= second;
+    return tmp;
+}
 
-//template<typename T1, typename T2>
-//Vector<T2> operator*(const T1& first, const Vector<T2>& second){
-//    Vector<T1> tmp = second;
-//    tmp *= first;
-//    return tmp;
-//}
+template<typename T1, typename T2>
+bool operator==(const Vector<T1>& first, const Vector<T2> &second){
+    if (first.size() != second.size() || first.isTransposed != second.isTransposed) return false;
+    for (size_t i = 0; i < first.size(); ++i){
+        if (first.operator[](i) != second[i]) return false;
+    }
+    return true;
+}
 
 
 template<typename T1, typename T2>
@@ -209,47 +288,16 @@ Vector<T2> operator/(const T1& first, const Vector<T2>& second){
 }
 
 
-
-template<typename T1, typename T2>
-Vector<T1> operator*(const Vector<T1>& vec, const Matrix<T2>& mat){
-    if ((!vec.isTransposed && vec.size() != mat.size().first) ||
-        (vec.isTransposed && vec.size() != (mat.size().second || mat.size().first != 1))){
-        throw MatrixSizeError::product("Vector", {1, vec.size()},
-                                       "Matrix", mat.size());
+template<typename T>
+std::ostream &operator<<(std::ostream &out, const Vector<T> &vec) {
+    for (size_t i = 0; i < vec.size(); ++i) {
+        out << vec[i];
+        if (i + 1 != vec.size()) out << (vec.isTransposed ? ' ' : '\n');
     }
-    Vector<T1> tmp(mat.size().second);
-    tmp.isTransposed = vec.isTransposed;
-    for (size_t i = 0; i < mat.size().second; ++i) {
-        tmp[i] = 0;
-        for (size_t j = 0; j < vec.size(); ++j) {
-            tmp[i] += vec[j] * mat[j][i];
-        }
-    }
-
-    return tmp;
+    return out;
 }
 
-template<typename T1, typename T2>
-Vector<T1> operator*(const Matrix<T2>& mat, const Vector<T1>& vec){
-    if ((!vec.isTransposed && vec.size() != mat.size().second) ||
-    (vec.isTransposed && (vec.size() != mat.size().first || mat.size().second != 1))){
-        if (vec.isTransposed)
-            throw  MatrixSizeError::product("Matrix", mat.size(),
-                                            "Vector", {1, vec.size()});
-        throw  MatrixSizeError::product("Matrix", mat.size(),
-                                        "Vector", {vec.size(), 1});
-    }
-    Vector<T1> tmp(mat.size().first);
-    tmp.isTransposed = false;
 
-    for (size_t i = 0; i < mat.size().first; ++i) {
-        tmp[i] = 0;
-        for (size_t j = 0; j < vec.size(); ++j) {
-            tmp[i] += vec[j] * mat[i][j];
-        }
-    }
-    return tmp;
-}
 
 template<typename T>
 T BilinearForm(Matrix<T> mat, Vector<T> vec1, Vector<T> vec2){

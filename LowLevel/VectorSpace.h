@@ -33,13 +33,13 @@ private:
         if (_dim != other._dim) return false;
         return (other.basis == this->basis);
     }
-    bool operator==(const VectorSpace<T> &other){
-        if (_dim != other._dim) return false;
-        return (other.basis == this->basis);
-    }
 
     floatType scalar_product(const Vector<T> &first, const Vector<T> &second){
-        floatType tmp = (first * gram) % second;
+        Vector<floatType> tmp_first(first);
+        tmp_first.isTransposed = true;
+        Vector<T> tmp_second(second);
+        tmp_second.isTransposed = false;
+        floatType tmp = (floatType)((tmp_first * gram) % tmp_second);
         return tmp;
     };
 

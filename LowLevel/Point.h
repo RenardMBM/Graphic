@@ -9,12 +9,21 @@ public:
     using floatType = typename Vector<T>::floatType;
     using Vector<T>::Vector;
 
+    // region constructs
     Point<T>(const Vector<T> &other){
         this->matrix = other.matrix;
         this->n = other.size();
         this->m = 1;
     }
+    // endregion
 
+    // region methods
+    size_t size() const{
+        return this->_size();
+    }
+    // endregion
+
+    // region operators
     template<typename T_other>
     bool operator==(const Point<T_other> &other){
         if (size() != other.sz()) return false;
@@ -47,11 +56,7 @@ public:
         return *this + (-other);
     }
 
-    [[nodiscard]] size_t size() const{
-        return this->_size();
-    }
     using Vector<T>::operator[];
+    // endregion
 };
-
-
 #endif //GRAPHIC_POINT_H

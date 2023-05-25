@@ -8,4 +8,5 @@ file(GLOB Exceptions_SRC
 file(GLOB Math_SRC
         "LowLevel/*.h")
 
+add_subdirectory(Tests)
 add_executable(Graphic main.cpp ${Exceptions_SRC} ${Math_SRC} Graphic.h)
