@@ -20,12 +20,8 @@ TEST(VectorConstructsTests, VectorConstructsDiffType) {
 
 TEST(VectorConstructsTests, VectorConstructsFilled) {
     Vector<long long> mat_ll(10, 1);
-    bool flag = false;
-    for (size_t i = 0; i < 10; ++i){
-        if (flag) break;
-        flag = (mat_ll[i] != 1);
-    }
-    ASSERT_FALSE(flag);
+    std::vector<std::vector<long long>> tmp = {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}};
+    ASSERT_EQ(mat_ll, Vector<long long>(tmp));
 }
 //  endregion
 
@@ -710,19 +706,21 @@ TEST(VectorOperatorsTests, VectorIndex) {
 
 TEST(VectorOperatorsTests, VectorIndexOut) {
     std::vector<std::vector<int>> tmp({{1}, {2}, {3}, {4}});
+    Vector<int> vec = Vector<int>({1, 2, 3, 4}),
+                vec_col = Vector<int>(tmp);
 
-    ASSERT_THROW(Vector<int>({1, 2, 3, 4})[4], MatrixIndexError);
-    ASSERT_THROW(Vector<int>(tmp)[4], MatrixIndexError);
+    ASSERT_THROW(vec[4], MatrixIndexError);
+    ASSERT_THROW(vec_col[5], MatrixIndexError);
 }
 
 TEST(VectorOperatorsTests, VectorIndexEq) {
     std::vector<std::vector<int>> tmp({{1},{2}, {3}, {4}}),
-                                  tmp_res({{1},{2}, {3}, {134}});
+                                  tmp_res({{1}, {2}, {3}, {134}});
 
     Vector<int> vec_row({1, 2, 3, 4}), vec_col(tmp),
                 vec_row_res({1, 2, 10, 4}), vec_col_res(tmp_res);
     vec_row[2] = 10;
-    vec_col[4] = 134;
+    vec_col[3] = 134;
 
     ASSERT_EQ(vec_row, vec_row_res);
     ASSERT_EQ(vec_col, vec_col_res);
