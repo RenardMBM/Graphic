@@ -38,6 +38,7 @@ public:
     floatType EPS = 10e-5;
 
     //region constructs
+    explicit Vector(): Matrix<T>(0, 0), isTransposed(false) {};
     explicit Vector(const size_t &n): Matrix<T>(n, 1), isTransposed(false) {};
     explicit Vector(const size_t &n, const T &value): Matrix<T>(n, 1, value), isTransposed(false) {};
     explicit Vector(const std::vector<T> &vec): Matrix<T>(vec.size(), 1), isTransposed(true) {
@@ -79,8 +80,8 @@ public:
         if (this->size() != other.size()) return false;
         for (size_t i =0; i < this->size(); ++i){
             if (std::max(this->operator[](i), static_cast<T>(other[i])) -
-                    std::min(this->operator[](i), static_cast<T>(other[i])) > precision)
-                    return false;
+                std::min(this->operator[](i), static_cast<T>(other[i])) > precision)
+                return false;
         }
         return true;
     }
@@ -118,9 +119,9 @@ public:
         return tmp;
     }
 
-    template<typename T_other> // multiplication row by column
-    auto operator* (const Vector<T_other> &other){
-        if (this->isTransposed && !other.isTransposed && this->size() == other.size()){
+    template<typename T_other>
+    mulVecByVecTypes operator* (const Vector<T_other> &other){
+        if (this->isTransposed && !other.isTransposed && this->size() == other.size()){ // multiplication row by column
             T tmp = 0;
             for (size_t i = 0; i < this->size(); ++i){
                 tmp += this->operator[](i) * static_cast<T>(other.operator[](i));
@@ -303,17 +304,26 @@ template<typename T>
 T BilinearForm(Matrix<T> mat, Vector<T> vec1, Vector<T> vec2){
     if (mat.size() != std::make_pair(vec1.size(), vec2.size()) || vec1.size() != vec2.size()){
         throw MatrixSizeError::not_matches({
-                                                 {"Vector", {{1, vec1.size()}, {"1", "N"}}},
-                                                 {"Matrix", {mat.size(),       {"1", "N"}}},
-                                                 {"Vector", {{vec2.size(), 1}, {"N", "1"}}}
-        }, "BilinearFormSizeError");
+                                                   {"Vector", {{1, vec1.size()}, {"1", "N"}}},
+                                                   {"Matrix", {mat.size(),       {"N", "N"}}},
+                                                   {"Vector", {{vec2.size(), 1}, {"N", "1"}}}
+                                           }, "BilinearFormSizeError");
     }
-    T tmp = 0;
-    for (size_t i = 0; i < vec1.size(); ++i){
-        for (size_t j = 0; j < vec1.size(); ++j){
-            tmp += mat[i][j] * vec1[i] * vec2[j];
-        }
-    }
-    return tmp;
+
+    Vector<T> tmp_vec;
+    if (!vec1.isTransposed)
+        tmp_vec = vec1.transposed() * mat;
+    else
+        tmp_vec = vec1 * mat;
+
+
+    std::variant<Matrix<T>, T> calc_res;
+
+    if (vec2.isTransposed)
+        calc_res = tmp_vec * vec2.transposed();
+    else
+        calc_res = tmp_vec * vec2;
+
+    return std::get<T>(calc_res);
 }
 #endif //GRAPHIC_VECTOR_H

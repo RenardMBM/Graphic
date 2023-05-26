@@ -93,53 +93,53 @@ TEST(VectorOperatorsTests, VectorRowEqqEqualElem){
 TEST(VectorOperatorsTests, VectorColumnPerEqqRow) {
     std::vector<std::vector<float>> tmp = {{1.01,}, {2.01,}, {3.02,}, {4.05,}, {5.07,}, {6.04,}};
     Vector<float> vec = Vector<float>({1, 2, 3, 4, 5, 6}),
-                  vec1 = Vector<float>(tmp);
+            vec1 = Vector<float>(tmp);
     ASSERT_TRUE(vec.equalPrecision(vec1, 0.1));
 }
 
 TEST(VectorOperatorsTests, VectorColumnPerNotEqqRow) {
     std::vector<std::vector<float>> tmp = {{1,}, {2,}, {3,}, {4,}, {5,}, {6,}};
     Vector<float> vec = Vector<float>({1.1, 2.2, 3.1, 4.01, 5.1, 6.2}),
-                  vec1 = Vector<float>(tmp);
+            vec1 = Vector<float>(tmp);
     ASSERT_FALSE(vec.equalPrecision(vec1, 0.1));
 }
 
 TEST(VectorOperatorsTests, VectorColumnPerEqqDiffHeight){
     std::vector<std::vector<float>> tmp = {{1,}, {2,}, {3,}, {4,}},
-                                    tmp1 = {{1.1}, {2.1}, {3.0}, {4.1}, {5.1}};
+            tmp1 = {{1.1}, {2.1}, {3.0}, {4.1}, {5.1}};
 
     Vector<float> vec = Vector<float>(tmp),
-                  vec1 = Vector<float>(tmp1);
+            vec1 = Vector<float>(tmp1);
     ASSERT_FALSE(vec.equalPrecision(vec1, 0.1));
 }
 
 TEST(VectorOperatorsTests, VectorRowPerEqqDiffWidth){
     std::vector<float> tmp = {1, 2, 3, 4},
-                       tmp1 = {1, 2, 3, 4, 5};
+            tmp1 = {1, 2, 3, 4, 5};
 
     Vector<float> vec = Vector<float>(tmp),
-                  vec1 = Vector<float>(tmp1);
+            vec1 = Vector<float>(tmp1);
     ASSERT_FALSE(vec.equalPrecision(vec1));
 }
 
 TEST(VectorOperatorsTests, VectorColumnPerEqqDiffElem){
     std::vector<std::vector<float>> tmp = {{1,}, {2,}, {3,}, {4,}},
-                                    tmp1 = {{1}, {2}, {3}, {5}};
+            tmp1 = {{1}, {2}, {3}, {5}};
     Vector<float> vec = Vector<float>(tmp),
-                  vec1 = Vector<float>(tmp1);
+            vec1 = Vector<float>(tmp1);
     ASSERT_FALSE(vec.equalPrecision(vec1));
 }
 
 TEST(VectorOperatorsTests, VectorRowPerEqqDiffElem){
     Vector<float> vec = Vector<float>({1, 2, 3, 4, 5, 6}),
-                  vec1 = Vector<float>({1, 2, 3, 4, 5, 7});
+            vec1 = Vector<float>({1, 2, 3, 4, 5, 7});
     bool res = vec.equalPrecision(vec1);
     ASSERT_FALSE(res);
 }
 
 TEST(VectorOperatorsTests, VectorColumnPerEqqEqualElem){
     std::vector<std::vector<float>> tmp = {{1.2,}, {2.1,}, {3.01,}, {4.2,}},
-                                    tmp1 = {{1.1}, {2.0}, {3.09}, {4.3}};
+            tmp1 = {{1.1}, {2.0}, {3.09}, {4.3}};
 
     Vector<float> vec = Vector<float>(tmp),
             vec1 = Vector<float>(tmp1);
@@ -157,8 +157,8 @@ TEST(VectorOperatorsTests, VectorRowPerEqqEqualElem){
 // region addition
 TEST(VectorOperatorsTests, VectorColumnAddSameSize){
     std::vector<std::vector<int>> tmp = {{1}, {3}, {5}},
-    tmp1 = {{1}, {2}, {3}},
-    tmp_res = {{2}, {5}, {8}};
+            tmp1 = {{1}, {2}, {3}},
+            tmp_res = {{2}, {5}, {8}};
 
     Vector<int> vec = Vector<int>(tmp),
             vec1 = Vector<int>(tmp1);
@@ -189,7 +189,7 @@ TEST(VectorOperatorsTests, VectorColumnAddLessSizeHeight){
             tmp_res = {{2}, {5}, {8}, {4}};
     Vector<int> vec = Vector<int>(tmp),
             vec1 = Vector<int>(tmp1),
-                    vec_res = Vector<int>(tmp_res);
+            vec_res = Vector<int>(tmp_res);
     ASSERT_EQ(vec + vec1, vec_res);
 }
 
@@ -209,7 +209,7 @@ TEST(VectorOperatorsTests, VectorRowAddLessSizeWidth){
 
 TEST(VectorOperatorsTests, VectorColumAddRow){
     std::vector<std::vector<int>> tmp = {{1}, {3}, {5}},
-        tmp_res = {{2}, {6}, {10}};
+            tmp_res = {{2}, {6}, {10}};
     Vector<int> vec = Vector<int>(tmp),
             vec1 = Vector<int>({1,3, 5}),
             vec_res = Vector<int>(tmp_res);
@@ -228,8 +228,8 @@ TEST(VectorOperatorsTests, VectorRowAddColum){
 //  region subtraction
 TEST(VectorOperatorsTests,  VectorColumnSubSameSize){
     std::vector<std::vector<int>> tmp = {{1}, {2}, {3}, {6}},
-    tmp1 = {{1}, {1}, {4}, {2}},
-    tmp_res =  {{0}, {1}, {-1}, {4}};
+            tmp1 = {{1}, {1}, {4}, {2}},
+            tmp_res =  {{0}, {1}, {-1}, {4}};
 
     Vector<int> vec = Vector<int>(tmp),
             vec1 = Vector<int>(tmp1);
@@ -251,16 +251,16 @@ TEST(VectorOperatorsTests, VectorColumnSubGrSizeHeight){
             tmp1 = {{1}, {1}, {4}, {2}, {1}},
             tmp_res = {{0}, {1}, {-1}, {4}};
     Vector<int> vec = Vector<int>(tmp),
-                vec1 = Vector<int>(tmp1),
-                vec_res = Vector<int>(tmp_res);
+            vec1 = Vector<int>(tmp1),
+            vec_res = Vector<int>(tmp_res);
 
     ASSERT_EQ(vec - vec1, vec_res);
 }
 
 TEST(VectorOperatorsTests, VectorRowSubGrSizeWidth){
     Vector<int> vec = Vector<int>({1, 2, 3, 6}),
-                vec1 = Vector<int>({1, 1, 4, 2, 1}),
-                vec_res = Vector<int>({0, 1, -1, 4});
+            vec1 = Vector<int>({1, 1, 4, 2, 1}),
+            vec_res = Vector<int>({0, 1, -1, 4});
 
     ASSERT_EQ(vec - vec1, vec_res);
 }
@@ -270,8 +270,8 @@ TEST(VectorOperatorsTests, VectorColumnSubLessSizeHeight){
             tmp1 = {{1}, {2}, {3}, {6}},
             tmp_res = {{0}, {-1}, {1}, {-4}, {1}};
     Vector<int> vec = Vector<int>(tmp),
-                vec1 = Vector<int>(tmp1),
-                vec_res = Vector<int>(tmp_res);
+            vec1 = Vector<int>(tmp1),
+            vec_res = Vector<int>(tmp_res);
     ASSERT_EQ(vec - vec1, vec_res);
 }
 
@@ -320,8 +320,8 @@ TEST(VectorOperatorsTests, VectorColumnMulLessHeight){
     Vector<int> vec = Vector<int>(tmp),
             vec1 = Vector<int>({1, 2, 7});
     Matrix<int> res_mat = Matrix<int>({
-                                       {1, 2, 7},
-                                       {3, 6, 21}});
+                                              {1, 2, 7},
+                                              {3, 6, 21}});
 
     auto calc_res = vec * vec1;
 
@@ -359,7 +359,7 @@ TEST(VectorOperatorsTests, VectorRowMulColumnLessWidth){
 
 TEST(VectorOperatorsTests, VectorRowMulRow){
     std::vector<std::vector<int>> tmp = {{2} , {6}, {3}},
-                                  tmp1 = {{1}, {3}, {5}};
+            tmp1 = {{1}, {3}, {5}};
     Vector<int> vec = Vector<int>(tmp),
             vec1 = Vector<int>(tmp1);
 
@@ -368,7 +368,7 @@ TEST(VectorOperatorsTests, VectorRowMulRow){
 
 TEST(VectorOperatorsTests, VectorColumnMulColumn){
     Vector<int> vec = Vector<int>({2 , 6, 3}),
-                vec1 = Vector<int>({1, 3, 5});
+            vec1 = Vector<int>({1, 3, 5});
 
     ASSERT_THROW(vec * vec1, VectorSizeError);
 }
@@ -402,7 +402,7 @@ TEST(VectorOperatorsTests, VectorColumnMulMatrix){
 //  region multiplication by scalar
 TEST(VectorOperatorsTests, VectorColumnIntMulInt){
     std::vector<std::vector<int>> tmp = {{1}, {2}, {3}, {4}},
-                                  tmp_res = {{10}, {20}, {30}, {40}};
+            tmp_res = {{10}, {20}, {30}, {40}};
 
     Vector<int> vec = Vector<int>(tmp);
     int a = 10;
@@ -547,7 +547,7 @@ TEST(VectorOperatorsTests, VectorColumnScProdColumn){
 //  region vector_product
 TEST(VectorOperatorsTests, VectorColumnVecProdRow){
     std::vector<std::vector<int>> tmp = {{1}, {3}, {5}},
-                                  tmp_res = {{11}, {-2}, {-1}};
+            tmp_res = {{11}, {-2}, {-1}};
     Vector<int> vec = Vector<int>(tmp),
             vec1 = Vector<int>({1, 2, 7});
     Vector<int> res_vec = Vector<int>(tmp_res);
@@ -573,7 +573,7 @@ TEST(VectorOperatorsTests, VectorColumnVecProdLessHeight){
 
 TEST(VectorOperatorsTests, VectorRowVecProdColumn){
     std::vector<std::vector<int>> tmp1 = {{1}, {3}, {5}},
-                                  tmp_res = {{-11}, {2}, {1}};
+            tmp_res = {{-11}, {2}, {1}};
     Vector<int> vec = Vector<int>({1, 2, 7}),
             vec1 = Vector<int>(tmp1);
 
@@ -585,7 +585,7 @@ TEST(VectorOperatorsTests, VectorRowVecProdColumn){
 TEST(VectorOperatorsTests, VectorRowVecProdColumnGrWidth){
     std::vector<std::vector<int>> tmp1 = {{1}, {3}, {5}};
     Vector<int> vec = Vector<int>({1, 2, 7, 8}),
-                vec1 = Vector<int>(tmp1);
+            vec1 = Vector<int>(tmp1);
 
     ASSERT_THROW(vec ^ vec1, VectorSizeError);
 }
@@ -600,11 +600,11 @@ TEST(VectorOperatorsTests, VectorRowVecProdColumnLessWidth){
 
 TEST(VectorOperatorsTests, VectorRowVecProdRow){
     std::vector<std::vector<int>> tmp = {{2} , {6}, {3}},
-                                  tmp_res = {{21}, {-7}, {0}},
+            tmp_res = {{21}, {-7}, {0}},
             tmp1 = {{1}, {3}, {5}};
     Vector<int> vec = Vector<int>(tmp),
-                vec1 = Vector<int>(tmp1),
-                vec_res = Vector<int>(tmp_res);
+            vec1 = Vector<int>(tmp1),
+            vec_res = Vector<int>(tmp_res);
 
     ASSERT_EQ(vec ^ vec1, vec_res);
 }
@@ -624,7 +624,7 @@ TEST(VectorOperatorsTests, VectorColumnVecProdColumn){
 //  region div_by_scalar
 TEST(VectorOperatorsTests, VectorColumnIntDivInt){
     std::vector<std::vector<int>> tmp = {{10}, {20}, {30}, {40}},
-                                  tmp_res = {{1}, {2}, {3}, {4}};
+            tmp_res = {{1}, {2}, {3}, {4}};
 
     Vector<int> vec = Vector<int>(tmp);
     int a = 10;
@@ -635,7 +635,7 @@ TEST(VectorOperatorsTests, VectorColumnIntDivInt){
 
 TEST(VectorOperatorsTests, VectorColumnIntDivFloat){
     std::vector<std::vector<int>> tmp = {{10}, {20}, {30}, {40}},
-                                  tmp_res = {{1}, {2}, {3}, {4}};
+            tmp_res = {{1}, {2}, {3}, {4}};
 
     Vector<int> vec = Vector<int>(tmp);
     float a = 10.2;
@@ -704,7 +704,7 @@ TEST(VectorMethodsTests, VectorTransposed){
     std::vector<std::vector<int>> tmp = {{10}, {20}, {30}, {40}};
 
     Vector<int> vec = Vector<int>(tmp),
-                vec1 = Vector<int>({10, 20, 30, 40});
+            vec1 = Vector<int>({10, 20, 30, 40});
 
     ASSERT_EQ(vec.transposed(), vec1);
     ASSERT_EQ(vec1.transposed(), vec);
@@ -727,8 +727,8 @@ TEST(VectorMethodsTests, VectorTransposeOne){
     std::vector<int> tmp1 = {2};
 
     Vector<int> vec(tmp),
-                vec1(tmp1),
-                vec_res(vec);
+            vec1(tmp1),
+            vec_res(vec);
     vec_res.transpose();
     ASSERT_EQ(vec1, vec_res);
 
@@ -817,4 +817,54 @@ TEST(VectorMethodsTests, VectorEmptyNormalize){
     ASSERT_TRUE(vec_res.equalPrecision(vec.normalize(), 10e-5));
 }
 //  endregion
+//  endregion
+
+
+//  region BilinearForm
+TEST(VectorFunctionTests, VectorBiForm){
+    std::vector<std::vector<int>> tmp2 = {{10}, {20}, {30}};
+
+    Vector<int> vec1 = Vector<int>({5, 15, 25}),
+            vec2 = Vector<int>(tmp2);
+    Matrix<int> mat = Matrix<int>(
+            {
+                    {1, 2, 3},
+                    {4, 5, 6},
+                    {7, 8, 9}
+            });
+
+
+    ASSERT_EQ(BilinearForm<int>(mat, vec1, vec2), 18000);
+}
+
+TEST(VectorFunctionTests, VectorBiFormFloat){
+    std::vector<std::vector<long double>> tmp2 = {{10.5}, {20.5}, {30.2}};
+
+    Vector<long double> vec1 = Vector<long double>({5.9, 15.2, 25.3}),
+            vec2 = Vector<long double>(tmp2);
+    Matrix<long double> mat = Matrix<long double>(
+            {
+                    {1.3, 2.5, 3.1},
+                    {4.4, 5.3, 6.5},
+                    {7.6, 8.5, 9.9}
+            });
+
+
+    ASSERT_NEAR(BilinearForm<long double>(mat, vec1, vec2), 20264.407, 10e-5);
+}
+
+TEST(VectorFunctionTests, VectorBiFormDiffSize){
+    std::vector<std::vector<long double>> tmp2 = {{10.5}, {20.5}, {30.2}, {10.2}};
+
+    Vector<long double> vec1 = Vector<long double>({5.9, 15.2, 25.3}),
+            vec2 = Vector<long double>(tmp2);
+    Matrix<long double> mat = Matrix<long double>(
+            {
+                    {1.3, 2.5, 3.1, 10},
+                    {4.4, 5.3, 6.5, 32.3},
+                    {7.6, 8.5, 9.9, 23.2}
+            });
+
+    ASSERT_THROW(BilinearForm<long double>(mat, vec1, vec2), MatrixSizeError);
+}
 //  endregion
