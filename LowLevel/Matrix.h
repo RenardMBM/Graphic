@@ -1,6 +1,7 @@
 #ifndef GRAPHIC_MATRIX_H
 #define GRAPHIC_MATRIX_H
 
+#include <iostream>
 #include <vector>
 #include <set>
 #include "../Exceptions/MatrixError.h"
@@ -55,9 +56,9 @@ public:
     explicit Matrix(size_t n): n(n), m(n), matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, 0))){};
     explicit Matrix(size_t n, size_t m): n(n), m(m), matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, 0))){};
     Matrix(size_t n, size_t m, T value): n(n), m(m), matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, value))){};
-    Matrix(const Matrix<T> &other): n(other.n), m(other.m), matrix(std::vector<std::vector<T>>(other.matrix)){};
+    Matrix(const Matrix<T> &other): n(other.size().first), m(other.size().second), matrix(std::vector<std::vector<T>>(other.matrix)){};
     template<typename T_other>
-    explicit Matrix(const Matrix<T_other> &other): n(other.n), m(other.m), matrix(std::vector<std::vector<T>>(n, std::vector<T>(m))){
+    explicit Matrix(const Matrix<T_other> &other): n(other.size().first), m(other.size().second), matrix(std::vector<std::vector<T>>(n, std::vector<T>(m))){
         for (size_t i = 0; i < n; ++i){
             for (size_t j = 0; j < m; ++j){
                 matrix[i][j] = static_cast<T>(other[i][j]);
@@ -175,7 +176,7 @@ public:
         for (size_t i =0; i < this->size().first; ++i){
             for (size_t j = 0; j < this->size().second; ++j){
                 if (std::max(this->matrix[i][j], static_cast<T>(other.matrix[i][j])) -
-                             std::min(this->matrix[i][j], static_cast<T>(other.matrix[i][j])) > precision)
+                    std::min(this->matrix[i][j], static_cast<T>(other.matrix[i][j])) > precision)
                     return false;
             }
         }
@@ -216,6 +217,14 @@ public:
         return *this;
     }
 
+
+    template<typename T_other>
+    Matrix<T> operator* (const T_other& other){
+        Matrix<T> tmp = *this;
+        tmp *= other;
+        return tmp;
+    }
+
     template<typename T_other>
     Matrix<T> &operator/=(const T_other &other){
         if (other == 0){
@@ -243,6 +252,13 @@ public:
         return *this;
     }
 
+    template<typename T_other>
+    Matrix<T> operator/ (const T_other& other){
+        Matrix<T> tmp = *this;
+        tmp /= other;
+        return tmp;
+    }
+
     Matrix<T> operator-() const{
         Matrix<T> tmp = *this;
         tmp *= -1;
@@ -267,6 +283,20 @@ public:
     template<typename T_other>
     Matrix<T> &operator-=(const Matrix<T_other>& other){
         return *this+=(-other);
+    }
+
+    template<typename T_other>
+    Matrix<T> operator+ (const Matrix<T_other>& other){
+        Matrix<T> tmp = *this;
+        tmp += other;
+        return tmp;
+    }
+
+    template<typename T_other>
+    Matrix<T> operator- (const Matrix<T_other>& other){
+        Matrix<T> tmp = *this;
+        tmp -= other;
+        return tmp;
     }
 
     std::vector<T>& operator[](size_t i){
@@ -305,52 +335,41 @@ public:
         }
         return tmp;
     }
+
+    static Matrix<floatType> tait_bryan_matrix(floatType angelX = 0, floatType angelY = 0, floatType angelZ = 0){
+        Matrix<floatType> rx = Matrix<floatType>({
+                                                         {1, 0 , 0},
+                                                         {0, cos(angelX), -sin(angelX)},
+                                                         {0, sin(angelX), cos(angelX)}
+                                                 }),
+                ry = Matrix<floatType>({
+                                               {cos(angelY), 0 , sin(angelY)},
+                                               {0, 1, 0},
+                                               {-sin(angelY), 0, cos(angelY)}
+                                       }),
+                rz = Matrix<floatType>({
+                                               {cos(angelZ), -sin(angelZ) , 0},
+                                               {sin(angelZ), cos(angelZ), 0},
+                                               {0, 0, 1}
+                                       });
+
+        return rx * ry * rz;
+    }
+
+    static Matrix<floatType> rotation_matrix(std::pair<size_t, size_t> inds, floatType angle, size_t n){
+        if (inds.first == inds.second) throw std::invalid_argument("indexes must be different");
+        if (inds.first >= n || inds.second >= n) throw std::invalid_argument("indexes must be less dimensions");
+
+        Matrix<floatType> mat = Matrix<floatType>::identity<floatType>(n);
+        mat[inds.first][inds.first] = cos(angle);
+        mat[inds.first][inds.second] = -sin(angle);
+        mat[inds.second][inds.first] = sin(angle);
+        mat[inds.second][inds.second] = cos(angle);
+
+        return mat;
+    }
     // endregion
 };
-
-template<typename T1, typename T2>
-Matrix<T1> operator* (const Matrix<T1>& first, const T2& second){
-    Matrix<T1> tmp = first;
-    tmp *= second;
-    return tmp;
-}
-
-
-template<typename T1, typename T2>
-Matrix<T1> operator* (const Matrix<T1>& first, const Matrix<T2>& second){
-    Matrix<T1> tmp = first;
-    tmp *= second;
-    return tmp;
-}
-
-template<typename T1, typename T2>
-Matrix<T1> operator/ (const Matrix<T1>& first, const T2& second){
-    Matrix<T1> tmp = first;
-    tmp /= second;
-    return tmp;
-}
-
-template<typename T1, typename T2>
-Matrix<T1> operator/ (const Matrix<T1>& first, const Matrix<T2>& second){
-    Matrix<T1> tmp = first;
-    tmp /= second;
-    return tmp;
-}
-
-
-template<typename T1, typename T2>
-Matrix<T1> operator+ (const Matrix<T1>& first, const Matrix<T2>& second){
-    Matrix<T1> tmp = first;
-    tmp += second;
-    return tmp;
-}
-
-template<typename T1, typename T2>
-Matrix<T1> operator- (const Matrix<T1>& first, const Matrix<T2>& second){
-    Matrix<T1> tmp = first;
-    tmp -= second;
-    return tmp;
-}
 
 template<typename T>
 std::ostream &operator<<(std::ostream &out, const Matrix<T> &mat) {
@@ -358,7 +377,8 @@ std::ostream &operator<<(std::ostream &out, const Matrix<T> &mat) {
         for (size_t j = 0; j < mat.size().second; ++j) {
             out << mat.matrix[i][j] << ' ';
         }
-        if (i + 1 != mat.size().first) out << '\n';
+        if (i + 1 != mat.size().first)
+            out << std::endl;
     }
     return out;
 }
