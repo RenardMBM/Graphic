@@ -3,7 +3,7 @@
 #include "../../LowLevel/Point.h"
 
 //  region constructs
-TEST(PointConstructsTests, PointConstructsDiffType) {
+TEST(PointConstructorsTests, PointConstructsDiffType) {
     Point<long long> pt_ll(10);
     Point<int> pt_int(10);
 
@@ -11,7 +11,7 @@ TEST(PointConstructsTests, PointConstructsDiffType) {
     ASSERT_EQ(pt_ll.size(), 10);
 }
 
-TEST(PointConstructsTests, PointConstructsFilled) {
+TEST(PointConstructorsTests, PointConstructsFilled) {
     std::vector<std::vector<long long>> tmp = {{1}, {1}, {1}, {1}};
     ASSERT_EQ(Point<long long>(4, 1), Point<long long>(tmp));
     ASSERT_EQ(Point<long long>(5, 34), Point<long long>({34, 34, 34, 34, 34}));

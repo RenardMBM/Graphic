@@ -7,19 +7,19 @@
 
 
 //  region constructs
-TEST(MatrixConstructsTests, MatrixConstructsDiffType) {
+TEST(MatrixConstructorsTests, MatrixConstructsDiffType) {
     Matrix<long long> mat_ll(10, 10);
     Matrix<int> mat_int(10, 10);
     ASSERT_TRUE(mat_ll == mat_int);
 }
 
-TEST(MatrixConstructsTests, MatrixConstructsDiffSize) {
+TEST(MatrixConstructorsTests, MatrixConstructsDiffSize) {
     Matrix<long long> mat_ll(12, 10);
     Matrix<int> mat_int(10, 12);
     ASSERT_FALSE(mat_ll == mat_int);
 }
 
-TEST(MatrixConstructsTests, MatrixConstructsFill) {
+TEST(MatrixConstructorsTests, MatrixConstructsFill) {
     Matrix<long long> mat_ll(12, 10, 1);
     Matrix<int> mat_int(12, 10, 1);
     bool flag = false;

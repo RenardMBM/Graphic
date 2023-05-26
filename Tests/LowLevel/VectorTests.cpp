@@ -5,7 +5,7 @@
 
 
 //  region constructs
-TEST(VectorConstructsTests, VectorConstructsDiffType) {
+TEST(VectorConstructorsTests, VectorConstructsDiffType) {
     Vector<long long> vec_ll(10);
     Vector<int> vec_int(10);
     Vector<int> vec_row({10, 2, 3});
@@ -18,7 +18,7 @@ TEST(VectorConstructsTests, VectorConstructsDiffType) {
     ASSERT_FALSE(vec_col.isTransposed);
 }
 
-TEST(VectorConstructsTests, VectorConstructsFilled) {
+TEST(VectorConstructorsTests, VectorConstructsFilled) {
     Vector<long long> mat_ll(10, 1);
     std::vector<std::vector<long long>> tmp = {{1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}, {1}};
     ASSERT_EQ(mat_ll, Vector<long long>(tmp));
