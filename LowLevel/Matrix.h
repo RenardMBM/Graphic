@@ -224,7 +224,6 @@ public:
         return *this;
     }
 
-
     template<typename T_other>
     Matrix<T> operator* (const T_other& other){
         Matrix<T> tmp = *this;
@@ -287,6 +286,7 @@ public:
         }
         return *this;
     }
+
     template<typename T_other>
     Matrix<T> &operator-=(const Matrix<T_other>& other){
         return *this+=(-other);
@@ -316,6 +316,23 @@ public:
             throw MatrixIndexError::index_out("Matrix", size(), {i, "?"});
 
         return matrix[i];
+    }
+
+
+    template<typename T_other>
+    bool operator==(const Matrix<T_other> &other) const{
+        if (this->size() != other.size()) return false;
+        for (size_t i = 0; i < this->size().first; ++i){
+            for (size_t j = 0; j < this->size().second; ++j){
+                if (this->matrix[i][j] != static_cast<T_other>(other.matrix[i][j])) return false;
+            }
+        }
+        return true;
+    }
+
+    template<typename T_other>
+    bool operator!=(const Matrix<T_other> &other) const{
+        return ! (*this == other);
     }
     // endregion
 
@@ -398,21 +415,4 @@ std::istream &operator>>(std::istream &in,  Matrix<T> &mat) {
     }
     return in;
 }
-
-template<typename T1, typename T2>
-bool operator==(const Matrix<T1> &first, const Matrix<T2> &second){
-    if (first.size() != second.size()) return false;
-    for (size_t i = 0; i < first.size().first; ++i){
-        for (size_t j = 0; j < first.size().second; ++j){
-            if (first.matrix[i][j] != static_cast<T1>(second.matrix[i][j])) return false;
-        }
-    }
-    return true;
-}
-
-template<typename T1, typename T2>
-bool operator!=(const Matrix<T1> &first, const Matrix<T2> &second){
-    return ! (first == second);
-}
-
 #endif //GRAPHIC_MATRIX_H

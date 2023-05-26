@@ -259,6 +259,47 @@ TEST(MatrixOperatorsTests, MatrixFloatDivFloat){
     ASSERT_TRUE(mat / a == res_mat);
 }
 //  endregion
+
+//  region get_by_index
+TEST(MatrixOperatorsTests, MatrixIndex) {
+    Matrix<int> mat({
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}});
+    ASSERT_EQ(mat[2], std::vector<int>({7, 8, 9}));
+    ASSERT_EQ(mat[2][0], 7);
+}
+
+TEST(VectorOperatorsTests, MatrixIndexOut) {
+    Matrix<int> mat({
+                            {1, 2, 3},
+                            {4, 5, 6},
+                            {7, 8, 9}});
+
+    ASSERT_THROW(mat[3], MatrixIndexError);
+    ASSERT_THROW(Matrix<int>({
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9},
+        {1, 2, 3}})[4], MatrixIndexError);
+}
+
+TEST(MatrixOperatorsTests, MatrixIndexEq) {
+    Matrix<int> mat({
+                            {1, 2, 3},
+                            {4, 5, 6},
+                            {7, 8, 9}});
+    mat[2] = std::vector<int>{10, 11, 12};
+    mat[1][0] = 134;
+
+    Matrix<int> mat_res({
+                            {1, 2, 3},
+                            {134, 5, 6},
+                            {10, 11, 12}});
+
+    ASSERT_EQ(mat, mat_res);
+}
+//  endregion
 //  endregion
 
 //  region methods
