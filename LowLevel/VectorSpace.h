@@ -11,7 +11,7 @@ class VectorSpace{
 private:
     using floatType = long double;
     std::vector<Vector<T>> basis;
-    Matrix<floatType> gram;
+    Matrix<T> gram;
     std::pair<size_t, size_t> _dim;
     public:
     explicit VectorSpace(const std::vector<Vector<T>> &basis): basis(basis.begin(),basis.end()),
@@ -29,26 +29,27 @@ private:
     };
 
     template<class T_other>
-    bool operator==(const VectorSpace<T_other> &other){
+    bool operator==(const VectorSpace<T_other> &other) const{
         if (_dim != other._dim) return false;
         return (other.basis == this->basis);
     }
 
-    floatType scalar_product(const Vector<T> &first, const Vector<T> &second){
-        Vector<floatType> tmp_first(first);
+    T scalar_product(const Vector<T> &first, const Vector<T> &second){
+        Vector<T> tmp_first(first);
         tmp_first.isTransposed = true;
         Vector<T> tmp_second(second);
         tmp_second.isTransposed = false;
-        floatType tmp = (floatType)((tmp_first * gram) % tmp_second);
-        return tmp;
+        Vector<T> tmp = tmp_first * gram;
+        std::variant<Matrix<T>, T>calc = tmp * tmp_second;
+        return std::get<T>(calc);
     };
 
     Vector<T> vector_product(const Vector<T> &first, const Vector<T> &second){
         if (_dim.first != 3 || _dim.second != 3 || first.size() != 3 || second.size() != 3){
             throw MatrixSizeError::not_matches({
                                                        {"Basis", {_dim,                {"3", "3"}}},
-                                                       {"Vector", {{first.size(),  1}, {"3", 1}}},
-                                                       {"Vector", {{second.size(), 1}, {"3", 1}}}
+                                                       {"Vector", {{first.size(),  1}, {"3", "1"}}},
+                                                       {"Vector", {{second.size(), 1}, {"3", "1"}}}
             }, "VectorProductOnly3D");
         }
 
@@ -59,8 +60,8 @@ private:
     }
 
     Vector<T> as_vector(const Point<T> &pt){
-        if (pt.sz() != _dim.second){
-            throw MatrixSizeError::not_match("Point", {pt.sz(), 1},
+        if (pt.size() != _dim.second){
+            throw MatrixSizeError::not_match("Point", {pt.size(), 1},
                                              "VectorSpace(basis)", _dim,
                                              {"N", "1"}, {"M", "N"},
                                              "notMatchDimPointerAndVP");
