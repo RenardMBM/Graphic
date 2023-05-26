@@ -128,34 +128,41 @@ public:
 
         Matrix<floatType> res = Matrix().identity<floatType>(n);
         std::vector<std::vector<floatType>> mat(n, std::vector<floatType>(n));
-        for (size_t i = 0; i < n; ++i){
-            for (size_t j = 0; j < n; ++ j){
+        for (size_t i = 0; i < n; ++i) {
+            for (size_t j = 0; j < n; ++j) {
                 mat[i][j] = matrix[i][j];
             }
         }
-        for (size_t i = n - 1; i > 0; i--) {
-            if (mat[i - 1][0] < mat[i][0]) {
-                std::swap(mat[i], mat[i - 1]);
-            }
-        }
+
         for (size_t i = 0; i < n; i++) {
+//            for (size_t j = n - 1; j > i; j--) {
+//                if (mat[j - 1][i] < mat[j][i]) {
+//                    std::swap(mat[j], mat[j - 1]);
+//                    std::swap(res[j), res[j-1]);
+//                }
+//            }
+            floatType tmp = mat[i][i];
+            for (size_t j = 0; j < n; j++) {
+                if (j >= i) mat[i][j] /= tmp;
+                res.matrix[i][j] /= tmp;
+            }
             for (size_t j = 0; j < n; j++) {
                 if (j != i) {
-                    floatType temp = mat[j][i] / mat[i][i];
+                    tmp = static_cast<floatType>(mat[j][i]) / mat[i][i];
                     for (size_t k = 0; k < n; k++) {
-                        mat[j][k] -= mat[i][k] * temp;
-                        res.matrix[j][k] -= res.matrix[i][k] * temp;
+                        if (k >= i) mat[j][k] -= tmp * mat[i][k];
+                        res.matrix[j][k] -= tmp * res.matrix[i][k];
                     }
                 }
             }
         }
-        for (int i = 0; i < n; i++) {
-            floatType temp = mat[i][i];
-            for (int j = 0; j < n; j++) {
-                mat[i][j] = mat[i][j] / temp;
-                res.matrix[i][j] = res.matrix[i][j] / temp;
-            }
-        }
+//        for (int i = 0; i < n; i++) {
+//            floatType temp = mat[i][i];
+//            for (int j = 0; j < n; j++) {
+//                mat[i][j] = mat[i][j] / temp;
+//                res.matrix[i][j] = res.matrix[i][j] / temp;
+//            }
+//        }
         return res;
     }
 

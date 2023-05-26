@@ -373,6 +373,7 @@ TEST(MatrixMethodsTests, MatrixInvertThreeByThree){
                                   });
     Matrix<int> res_mat = Matrix<int>({
                                               {1, 1, 2},
+                                              {1, 1, 1},
                                               {2, 3, 4}
                                       });
     ASSERT_EQ(mat.inverse(), res_mat);

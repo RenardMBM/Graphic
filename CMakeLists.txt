@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 file(GLOB Exceptions_SRC
         "Exceptions/*.h")
-file(GLOB Math_SRC
+file(GLOB Math_head_SRC
         "LowLevel/*.h")
 
 add_subdirectory(Tests)
-add_executable(Graphic main.cpp ${Exceptions_SRC} ${Math_SRC} Graphic.h)
+add_executable(Graphic main.cpp ${Exceptions_SRC} ${Math_head_SRC} Graphic.h)
