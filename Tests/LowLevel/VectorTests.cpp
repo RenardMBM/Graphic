@@ -8,9 +8,14 @@
 TEST(VectorConstructsTests, VectorConstructsDiffType) {
     Vector<long long> vec_ll(10);
     Vector<int> vec_int(10);
+    Vector<int> vec_row({10, 2, 3});
+    std::vector<std::vector<int>> tmp = {{23}, {31}, {12}};
+    Vector<int> vec_col(tmp);
 
     ASSERT_TRUE(vec_ll == vec_int &&
                 (vec_ll.size() == 10));
+    ASSERT_TRUE(vec_row.isTransposed);
+    ASSERT_FALSE(vec_col.isTransposed);
 }
 
 TEST(VectorConstructsTests, VectorConstructsFilled) {
@@ -22,8 +27,6 @@ TEST(VectorConstructsTests, VectorConstructsFilled) {
     }
     ASSERT_FALSE(flag);
 }
-
-
 //  endregion
 
 //  region operators
@@ -694,6 +697,35 @@ TEST(VectorOperatorsTests, VectorRowFloatDivFloat){
     float a = 10.2;
     Vector<float> res_vec = Vector<float>({1.0, 2.0, 3.0, 4.0});
     ASSERT_TRUE(res_vec.equalPrecision(vec / a, 10e-5));
+}
+//  endregion
+
+//  region get_by_index
+TEST(VectorOperatorsTests, VectorIndex) {
+    std::vector<std::vector<int>> tmp({{1},{2}, {3}, {4}});
+
+    ASSERT_EQ(Vector<int>({1, 2, 3, 4})[3], 4);
+    ASSERT_EQ(Vector<int>(tmp)[0], 1);
+}
+
+TEST(VectorOperatorsTests, VectorIndexOut) {
+    std::vector<std::vector<int>> tmp({{1}, {2}, {3}, {4}});
+
+    ASSERT_THROW(Vector<int>({1, 2, 3, 4})[4], MatrixIndexError);
+    ASSERT_THROW(Vector<int>(tmp)[4], MatrixIndexError);
+}
+
+TEST(VectorOperatorsTests, VectorIndexEq) {
+    std::vector<std::vector<int>> tmp({{1},{2}, {3}, {4}}),
+                                  tmp_res({{1},{2}, {3}, {134}});
+
+    Vector<int> vec_row({1, 2, 3, 4}), vec_col(tmp),
+                vec_row_res({1, 2, 10, 4}), vec_col_res(tmp_res);
+    vec_row[2] = 10;
+    vec_col[4] = 134;
+
+    ASSERT_EQ(vec_row, vec_row_res);
+    ASSERT_EQ(vec_col, vec_col_res);
 }
 //  endregion
 //  endregion

@@ -203,15 +203,41 @@ public:
         return tmp;
     }
 
-    Vector<T> &operator+=(const Vector& other){
+    template<typename T_other>
+    Vector<T> &operator+=(const Vector<T_other>& other){
         for (size_t i = 0; i < std::min(this->size(), other.size()); ++i){
             if (i < other.size())
                 this->operator[](i) += static_cast<T>(other[i]);
         }
         return *this;
     }
-    Vector<T> &operator-=(const Vector& other){
+
+    template<typename T_other>
+    Vector<T> operator+(const Vector<T_other>& other){
+        Vector<T> tmp = *this;
+        tmp += other;
+        return tmp;
+    }
+
+    template<typename T_other>
+    Vector<T> &operator-=(const Vector<T_other>& other){
         return *this+=(-other);
+    }
+
+    template<typename T_other>
+    Vector<T> operator-(const Vector<T_other>& other){
+        Vector<T> tmp = *this;
+        tmp -= other;
+        return tmp;
+    }
+
+    template<typename T_other>
+    bool operator==(const Vector<T_other> &other) const{
+        if (this->size() != other.size() || this->isTransposed != other.isTransposed) return false;
+        for (size_t i = 0; i < this->size(); ++i){
+            if (this->operator[](i) != other[i]) return false;
+        }
+        return true;
     }
 
     // region vector_operator
@@ -254,30 +280,6 @@ public:
     // endregion
     // endregion
 };
-
-template<typename T1, typename T2>
-Vector<T1> operator+ (const Vector<T1>& first, const Vector<T2>& second){
-    Vector<T1> tmp = first;
-    tmp += second;
-    return tmp;
-}
-
-template<typename T1, typename T2>
-Vector<T1> operator- (const Vector<T1>& first, const Vector<T2>& second){
-    Vector<T1> tmp = first;
-    tmp -= second;
-    return tmp;
-}
-
-template<typename T1, typename T2>
-bool operator==(const Vector<T1>& first, const Vector<T2> &second){
-    if (first.size() != second.size() || first.isTransposed != second.isTransposed) return false;
-    for (size_t i = 0; i < first.size(); ++i){
-        if (first.operator[](i) != second[i]) return false;
-    }
-    return true;
-}
-
 
 template<typename T1, typename T2>
 Vector<T2> operator/(const T1& first, const Vector<T2>& second){
