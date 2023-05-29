@@ -14,7 +14,7 @@ namespace LowLevel {
         Point<T> initial_point;
         VectorSpace<T> space;
 
-        CoordinateSystem(Point<T> initial, VectorSpace<T> basis) : initial_point(initial), space(basis) {};
+        CoordinateSystem(const Point<T>& initial, const VectorSpace<T>& basis) : initial_point(initial), space(basis) {};
 
         template<typename T_other>
         bool operator==(const CoordinateSystem<T_other> &other) {
