@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 
-#include "../../LowLevel/Vector.h"
-#include "../../Exceptions/VectorError.h"
+#include "../../LowLevel/LowLevel.h"
 
+using namespace LowLevel;
 
 //  region constructs
 TEST(VectorConstructorsTests, VectorConstructsDiffType) {

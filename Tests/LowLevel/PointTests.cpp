@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 
-#include "../../LowLevel/Point.h"
+#include "../../LowLevel/LowLevel.h"
+
+using namespace LowLevel;
 
 //  region constructs
 TEST(PointConstructorsTests, PointConstructsDiffType) {

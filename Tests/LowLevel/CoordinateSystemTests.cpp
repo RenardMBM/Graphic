@@ -1,8 +1,11 @@
 #include "gtest/gtest.h"
 
-#include "../../LowLevel/CoordinateSystem.h"
+#include "../../LowLevel/LowLevel.h"
+
+using namespace LowLevel;
 
 TEST(CoordinateSystemConstructorsTests, CoordinateSystemConstructor) {
+
     std::vector<std::vector<int>> tmp1 = {{1}, {0}, {0}},
             tmp2 = {{0}, {1}, {0}},
             tmp3 = {{0}, {0}, {1}};

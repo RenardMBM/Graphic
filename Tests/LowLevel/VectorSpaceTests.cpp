@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 
-#include "../../LowLevel/VectorSpace.h"
+#include "../../LowLevel/LowLevel.h"
+
+using namespace LowLevel;
 
 TEST(VectorSpaceOperatorTests, VectorSpaceEqual) {
     std::vector<std::vector<int>> tmp1 = {{1}, {0}, {0}},

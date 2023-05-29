@@ -1,10 +1,8 @@
 #include "gtest/gtest.h"
 
-#include "../../LowLevel//Matrix.h"
-#include "../../LowLevel/Vector.h"
-#include "../../Exceptions/MatrixError.h"
-#include "../../Exceptions/VectorError.h"
+#include "../../LowLevel/LowLevel.h"
 
+using namespace LowLevel;
 
 //  region constructs
 TEST(MatrixConstructorsTests, MatrixConstructsDiffType) {
