@@ -73,6 +73,10 @@ namespace LowLevel {
             return tmp;
         };
 
+        size_t dim() const{
+            return _dim.first;
+        }
+
     };
 }
 #endif //GRAPHIC_VECTORSPACE_H

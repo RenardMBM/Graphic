@@ -32,18 +32,6 @@ public:
     }
 };
 
-//class MatrixChangeError: public MatrixError{
-//public:
-//    using MatrixError::MatrixError;
-//
-////    static MatrixChangeError set_item(const msgType& name, const msgType& type_name){
-////    //        char* tmp = "sdafsad";
-////    //TODO: wtf
-////        msgType msg = "Wrong item value: "+name+"'s item must be int | float, not " + type_name;
-////        return MatrixChangeError(msg);
-////    }
-//};
-
 class MatrixSizeError: public MatrixError{
 protected:
     static msgType _not_match_size(const msgType &obj_name, const size_type &expected_sz,
@@ -101,14 +89,6 @@ protected:
         }
         return msg;
     }
-//        msgType msg;
-//        for (auto& obj_data: data){
-//            msg += _not_match_size(obj_data.first,
-//                                   obj_data.second[0],
-//                                   obj_data.second[1]) + "\n";
-//        }
-//        return MatrixSizeError(msg);
-//    }
 
 public:
     using MatrixError::MatrixError;
@@ -161,20 +141,9 @@ public:
                 {"M", "L"},
                 "ProductError"));
     }
-
-
-//    static MatrixSizeError out_range(const msgType &first_mat_name,
-//                                     const size_type &first_mat_sz,
-//                                     const msgType &second_mat_name,
-//                                     const size_type &second_mat_sz,
-//                                     const msgType &title="OutOfRangeError: "){
-//
-//    };
 };
 
 class MatrixIndexError: public MatrixError {
-//protected:
-
 public:
     using MatrixError::MatrixError;
     static MatrixIndexError index_out(const msgType &mat_name,

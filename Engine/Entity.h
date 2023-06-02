@@ -4,26 +4,33 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <any>
 
 #include "../LowLevel/LowLevel.h"
 #include "Identifier.h"
 
 namespace Engine {
+
+    static size_t PRECISION;
+
     class Entity {
     private:
         typedef long double floatType;
     public:
         LowLevel::CoordinateSystem<floatType> cs;
-        std::unique_ptr<Identifier> identifier;
-        std::map<std::string, void*> properties;
+        std::shared_ptr<Identifier> identifier;
+        std::map<std::string, std::any> properties;
 
+        explicit Entity();
         explicit Entity(const LowLevel::CoordinateSystem<floatType>&);
+        Entity(const Entity&);
 
-        void set_property(const std::string&, void*);
-        void* get_property(const std::string&);
+        void set_property(const std::string&, const std::any&);
+        std::any get_property(const std::string&) const;
         void remove_property(const std::string&);
 
-        void* operator[](const std::string&);
+        std::any operator[](const std::string&) const;
+        std::any& operator[](const std::string&);
     };
 
 } // Engine

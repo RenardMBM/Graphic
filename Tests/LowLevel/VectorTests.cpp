@@ -396,6 +396,34 @@ TEST(VectorOperatorsTests, VectorColumnMulMatrix){
 
     ASSERT_THROW(vec * mat, MatrixSizeError);
 }
+
+TEST(VectorOperatorsTests, VectorMatrixMulRow){
+    Vector<int> vec = Vector<int>({1, 3, 5, 6});
+    Matrix<int> mat = Matrix<int>(4, 3, 1);
+    Vector<int> res_vec = Vector<int>({15, 15, 15});
+
+    ASSERT_THROW(mat * vec, MatrixSizeError);
+}
+
+TEST(VectorOperatorsTests, VectorMatrixMulColumnDiffHeight){
+    std::vector<std::vector<int>> tmp = {{1}, {3}, {5}, {6}};
+    Vector<int> vec = Vector<int>(tmp);
+    Matrix<int> mat = Matrix<int>(3, 3, 1);
+
+    ASSERT_THROW(mat * vec, MatrixSizeError);
+}
+
+TEST(VectorOperatorsTests, VectorMatrixMulColumn){
+    std::vector<std::vector<int>> tmp = {{1}, {3}, {5}},
+                                    res_tmp={{9}, {9}, {9}};
+    Vector<int> vec = Vector<int>(tmp);
+    Matrix<int> mat = Matrix<int>(3, 3, 1);
+    Vector<int> res_vec = Vector<int>(res_tmp);
+    ASSERT_EQ(mat * vec, res_vec);
+}
+
+
+
 //  endregion
 
 //  region multiplication by scalar

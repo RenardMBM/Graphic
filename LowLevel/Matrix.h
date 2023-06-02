@@ -248,6 +248,27 @@ namespace LowLevel {
         }
 
         template<typename T_other>
+        Vector<T> operator*(const Vector<T_other> &vec) {
+            if (vec.isTransposed || vec.size() != this->size().second) {
+                std::pair<size_t, size_t> tmp_sz = {1, vec.size()};
+                if (!vec.isTransposed) std::swap(tmp_sz.first, tmp_sz.second);
+                throw MatrixSizeError::product("Matrix",
+                                               this->size(),
+                                               "Vector",
+                                               tmp_sz);
+            }
+            Vector<T> tmp(vec.size());
+            for (size_t i = 0; i < tmp.size(); ++i) {
+                tmp[i] = 0;
+                for (size_t j = 0; j < vec.size(); ++j) {
+                    tmp[i] += this->operator[](i)[j] * static_cast<T>(vec[j]);
+                }
+            }
+            tmp.isTransposed = false;
+            return tmp;
+        }
+
+        template<typename T_other>
         Matrix<T> &operator/=(const T_other &other) {
             if (other == 0) {
                 throw ArithmeticException::divByZero("Matrix");
