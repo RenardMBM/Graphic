@@ -5,18 +5,21 @@
 #include "../LowLevel/LowLevel.h"
 
 namespace Engine {
-
     class GameCamera: public GameObject {
     private:
-        typedef long double floatType;
-
         floatType calcVfov(floatType, floatType);
     public:
-        GameCamera();
-        GameCamera(floatType, floatType);
-        GameCamera(floatType, floatType, floatType);
-        GameCamera(floatType, const LowLevel::Point<floatType>&, floatType);
-        GameCamera(floatType, floatType, const LowLevel::Point<floatType>&, floatType);
+        explicit GameCamera(const LowLevel::CoordinateSystem<floatType>& cs = LowLevel::CoordinateSystem<floatType>());
+        explicit GameCamera(floatType, floatType,
+                   const LowLevel::CoordinateSystem<floatType>& cs = LowLevel::CoordinateSystem<floatType>());
+        explicit GameCamera(floatType, floatType, floatType,
+                   const LowLevel::CoordinateSystem<floatType>& cs = LowLevel::CoordinateSystem<floatType>());
+        explicit GameCamera(floatType, const LowLevel::Point<floatType>& look_at, floatType,
+                   const LowLevel::CoordinateSystem<floatType>& cs = LowLevel::CoordinateSystem<floatType>());
+        explicit GameCamera(floatType, floatType, const LowLevel::Point<floatType>& look_at, floatType,
+                            const LowLevel::CoordinateSystem<floatType>& cs = LowLevel::CoordinateSystem<floatType>());
+
+
     };
 
 } // Engine

@@ -6,13 +6,26 @@
 namespace LowLevel {
     template<typename T>
     class Point : private Vector<T> {
-    public:
-        typedef typename Vector<T>::floatType floatType;
+    private:
+        bool is_float;
+        T roundF(const T& num){
+            if (!is_float) return num;
 
+            updEPS();
+            T n_num = num - (std::fmod(num, EPS));
+            if (std::abs(std::fmod(num, EPS)) >= EPS / 2)
+                n_num += (num > 0? 1 : -1) * EPS;
+            return n_num;
+        }
+        size_t _size() const {
+            return this->n;
+        }
+    public:
         // region constructs
         using Vector<T>::Vector;
 
         explicit Point(const Vector<T> &other) {
+            this->is_float = check_float<T>();
             this->matrix = other.matrix;
             this->n = other.size();
             this->m = 1;
@@ -23,11 +36,29 @@ namespace LowLevel {
         size_t size() const {
             return this->_size();
         }
+
+        template<typename T_other>
+        bool equalPrecision(const Point<T_other> &other, int precision = -1) const{
+            floatType p;
+            if (precision < 0) p = EPS;
+            else {
+                if (precision > 20) throw std::exception();
+                p = 1/std::pow(10, (size_t)precision);
+            }
+            if (this->size() != other.size()) return false;
+            for (size_t i = 0; i < this->size(); ++i) {
+                if (std::max(this->operator[](i), static_cast<T>(other[i])) -
+                    std::min(this->operator[](i), static_cast<T>(other[i])) > p)
+                    return false;
+            }
+            return true;
+        }
         // endregion
 
         // region operators
         template<typename T_other>
         bool operator==(const Point<T_other> &other) const {
+            if (is_float) return equalPrecision(other);
             if (size() != other.size()) return false;
             for (size_t i = 0; i < size(); ++i) {
                 if (this->operator[](i) != other.operator[](i)) return false;
@@ -67,6 +98,7 @@ namespace LowLevel {
 
     template<typename T>
     std::ostream &operator<<(std::ostream &out, const Point<T> &pt) {
+        if (check_float<T>()) out << std::setprecision(PRECISION);
         for (size_t i = 0; i < pt.size(); ++i) {
             out << pt[i];
             if (i + 1 != pt.size()) out << ' ';

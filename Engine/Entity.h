@@ -10,12 +10,9 @@
 #include "Identifier.h"
 
 namespace Engine {
-
-    static size_t PRECISION;
+    typedef long double floatType;
 
     class Entity {
-    private:
-        typedef long double floatType;
     public:
         LowLevel::CoordinateSystem<floatType> cs;
         std::shared_ptr<Identifier> identifier;

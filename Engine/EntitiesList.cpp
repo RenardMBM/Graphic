@@ -28,13 +28,18 @@ namespace Engine {
     }
     void EntitiesList::remove(const std::shared_ptr<Identifier>& id){
         for (auto it = entities.begin(); it != entities.end(); ++it){
-            if ((*it).identifier->get_value() == id->get_value())
+            if ((*it).identifier->get_value() == id->get_value()) {
                 entities.erase(it);
+                break;
+            }
         }
     }
-    void EntitiesList::exec(std::function<void(Entity&)>& func) {
+    void EntitiesList::exec(std::function<void(Entity&)> func) {
         for (Entity &e: entities) {
             func(e);
         }
+    }
+    size_t EntitiesList::size() const{
+        return entities.size();
     }
 } // Engine

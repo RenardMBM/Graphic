@@ -4,19 +4,57 @@
 #include <iostream>
 #include <vector>
 #include <set>
+#include <type_traits>
+#include <iomanip>
+
 #include "../Exceptions/MatrixError.h"
 
 namespace LowLevel {
+    typedef long double floatType;
+    static size_t PRECISION = 4;
+    static floatType EPS = 1;
+
+    static void updEPS(){
+        EPS = 1l / (floatType)(PRECISION > 0 ? std::pow(10, PRECISION) : 1);
+    }
+    
+    template<typename T>
+    bool check_float(){
+        return std::is_same<T, float>::value ||
+               std::is_same<T, long double>::value ||
+               std::is_same<T, double>::value;
+    }
+    
+    template<typename T>
+    T roundF(const T& num){
+        if (!check_float<T>()) return num;
+
+        updEPS();
+        T n_num = num - (std::fmod(num, EPS));
+        if (std::abs(std::fmod(num, EPS)) >= EPS / 2)
+            n_num += (num > 0? 1 : -1) * EPS;
+        return n_num;
+    }
+
     template<typename T>
     class Vector;
 
     template<typename T>
     class Matrix {
     protected:
-        typedef long double floatType;
         size_t n, m; // height, width
-        floatType EPS = 1e-5;
+
     private:
+        bool is_float;
+        T roundF(const T& num){
+            if (!is_float) return num;
+
+            updEPS();
+            T n_num = num - (std::fmod(num, EPS));
+            if (std::abs(std::fmod(num, EPS)) >= EPS / 2)
+                n_num += (num > 0? 1 : -1) * EPS;
+            return n_num;
+        }
         Matrix<T> submatrix_except(size_t row, size_t col) const {
             Matrix<T> tmp(n - 1, m - 1);
             size_t d_row = 0, d_col = 0;
@@ -38,6 +76,7 @@ namespace LowLevel {
         }
 
         bool is_identity(floatType precision) {
+            updEPS();
             if (precision < 0) precision = EPS;
             if (this->size().first != this->size().second) return false;
             for (size_t i = 0; i < n; ++i) {
@@ -60,22 +99,23 @@ namespace LowLevel {
         std::vector<std::vector<T>> matrix;
 
         // region constructs
-        explicit Matrix() : n(0), m(0), matrix(std::vector<std::vector<T>>(0, std::vector<T>(0, 0)))  {}
+        explicit Matrix() : n(0), m(0), matrix(std::vector<std::vector<T>>(0, std::vector<T>(0, 0))) {check_float<T>();}
 
-        explicit Matrix(size_t n) : n(n), m(n), matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, 0))) {};
+        explicit Matrix(size_t n) : n(n), m(n), matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, 0))) {is_float = check_float<T>();};
 
         explicit Matrix(size_t n, size_t m) : n(n), m(m),
-                                              matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, 0))) {};
+                                              matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, 0))) {is_float = check_float<T>();};
 
         Matrix(size_t n, size_t m, T value) : n(n), m(m),
-                                              matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, value))) {};
+                                              matrix(std::vector<std::vector<T>>(n, std::vector<T>(m, value))) {is_float = check_float<T>();};
 
         Matrix(const Matrix<T> &other) : n(other.size().first), m(other.size().second),
-                                         matrix(std::vector<std::vector<T>>(other.matrix)) {};
+                                         matrix(std::vector<std::vector<T>>(other.matrix)) {is_float = check_float<T>();};
 
         template<typename T_other>
         explicit Matrix(const Matrix<T_other> &other): n(other.size().first), m(other.size().second),
                                                        matrix(std::vector<std::vector<T>>(n, std::vector<T>(m))) {
+            is_float = check_float<T>();
             for (size_t i = 0; i < n; ++i) {
                 for (size_t j = 0; j < m; ++j) {
                     matrix[i][j] = static_cast<T>(other[i][j]);
@@ -84,6 +124,7 @@ namespace LowLevel {
         }
 
         explicit Matrix(const std::vector<std::vector<T>> &other) {
+            is_float = check_float<T>();
             n = other.size();
             m = 0;
             if (n) {
@@ -128,11 +169,12 @@ namespace LowLevel {
 
             if (n == 0) return 0;
             if (n == 1) return matrix[0][0];
-
+            updEPS();
             short int sign = 1;
             T tmp = 0;
             for (int i = 0; i < n; i++) {
-                tmp += sign * matrix[0][i] * submatrix_except(0, i).det();
+                if (is_float) tmp = roundF(tmp + roundF(sign * matrix[0][i] * submatrix_except(0, i).det()));
+                else tmp += (sign * matrix[0][i] * submatrix_except(0, i).det());
                 sign *= -1;
             }
             return tmp;
@@ -151,34 +193,36 @@ namespace LowLevel {
             }
 
             for (size_t i = 0; i < n; i++) {
-//            for (size_t j = n - 1; j > i; j--) {
-//                if (mat[j - 1][i] < mat[j][i]) {
-//                    std::swap(mat[j], mat[j - 1]);
-//                    std::swap(res[j), res[j-1]);
-//                }
-//            }
                 floatType tmp = mat[i][i];
                 for (size_t j = 0; j < n; j++) {
-                    if (j >= i) mat[i][j] /= tmp;
-                    res.matrix[i][j] /= tmp;
+                    if (is_float){
+                        if (j >= i) mat[i][j] = roundF(mat[i][j] / tmp);
+                        res.matrix[i][j] = roundF(res.matrix[i][j] / tmp);
+                    }
+                    else{
+                        if (j >= i) mat[i][j] /= tmp;
+                        res.matrix[i][j] /= tmp;
+                    }
+
                 }
                 for (size_t j = 0; j < n; j++) {
                     if (j != i) {
                         tmp = static_cast<floatType>(mat[j][i]) / mat[i][i];
                         for (size_t k = 0; k < n; k++) {
-                            if (k >= i) mat[j][k] -= tmp * mat[i][k];
-                            res.matrix[j][k] -= tmp * res.matrix[i][k];
+                            if (is_float) {
+                                if (k >= i)
+                                    mat[j][k] = roundF(mat[j][k] - roundF(tmp * mat[i][k]));
+                                res.matrix[j][k] = roundF(res.matrix[j][k] - roundF(tmp * res.matrix[i][k]));
+
+                            }
+                            else {
+                                if (k >= i) mat[j][k] -= tmp * mat[i][k];
+                                else res.matrix[j][k] -= tmp * res.matrix[i][k];
+                            }
                         }
                     }
                 }
             }
-//        for (int i = 0; i < n; i++) {
-//            floatType temp = mat[i][i];
-//            for (int j = 0; j < n; j++) {
-//                mat[i][j] = mat[i][j] / temp;
-//                res.matrix[i][j] = res.matrix[i][j] / temp;
-//            }
-//        }
             return res;
         }
 
@@ -186,20 +230,27 @@ namespace LowLevel {
             floatType tmp = 0;
             for (size_t i = 0; i < size().first; ++i) {
                 for (size_t j = 0; j < size().second; ++j) {
-                    tmp += static_cast<T>(operator[](i)[j]) * static_cast<T>(operator[](i)[j]);
+                    if (is_float) tmp += roundF(static_cast<T>(operator[](i)[j]) * static_cast<T>(operator[](i)[j]));
+                    else tmp += static_cast<T>(operator[](i)[j]) * static_cast<T>(operator[](i)[j]);
+                    tmp = roundF(tmp);
                 }
             }
-            return sqrt(tmp);
+            return roundF(sqrt(tmp));
         }
 
         template<typename T_other>
-        bool equalPrecision(const Matrix<T_other> &other, floatType precision = -1) {
-            if (precision < 0) precision = EPS;
+        bool equalPrecision(const Matrix<T_other> &other, int precision = -1) const{
+            floatType p;
+            if (precision < 0) p = EPS;
+            else {
+                if (precision > 20) throw std::exception();
+                p = 1/std::pow(10, (size_t)precision);
+            }
             if (this->size() != other.size()) return false;
             for (size_t i = 0; i < this->size().first; ++i) {
                 for (size_t j = 0; j < this->size().second; ++j) {
                     if (std::max(this->matrix[i][j], static_cast<T>(other.matrix[i][j])) -
-                        std::min(this->matrix[i][j], static_cast<T>(other.matrix[i][j])) > precision)
+                        std::min(this->matrix[i][j], static_cast<T>(other.matrix[i][j])) > p)
                         return false;
                 }
             }
@@ -212,7 +263,8 @@ namespace LowLevel {
         Matrix<T> &operator*=(const T_other &other) {
             for (size_t i = 0; i < this->size().first; ++i) {
                 for (size_t j = 0; j < this->size().second; ++j) {
-                    this->matrix[i][j] *= static_cast<T>(other);
+                    if (is_float) this->matrix[i][j] = roundF(this->matrix[i][j] * roundF(static_cast<T>(other)));
+                    else this->matrix[i][j] *= static_cast<T>(other);
                 }
             }
             return *this;
@@ -232,7 +284,8 @@ namespace LowLevel {
             for (size_t i = 0; i < tmp.size().first; ++i) {
                 for (size_t j = 0; j < tmp.size().second; ++j) {
                     for (size_t k = 0; k < this->size().second; ++k) {
-                        tmp.matrix[i][j] += this->matrix[i][k] * static_cast<T>(other.matrix[k][j]);
+                        if (is_float) tmp.matrix[i][j] = tmp.matrix[i][j] + roundF(this->matrix[i][k] * roundF(static_cast<T>(other.matrix[k][j])));
+                        else tmp.matrix[i][j] += this->matrix[i][k] * static_cast<T>(other.matrix[k][j]);
                     }
                 }
             }
@@ -261,7 +314,8 @@ namespace LowLevel {
             for (size_t i = 0; i < tmp.size(); ++i) {
                 tmp[i] = 0;
                 for (size_t j = 0; j < vec.size(); ++j) {
-                    tmp[i] += this->operator[](i)[j] * static_cast<T>(vec[j]);
+                    if (is_float) tmp[i] += roundF(this->operator[](i)[j] * static_cast<T>(vec[j]));
+                    else tmp[i] += this->operator[](i)[j] * static_cast<T>(vec[j]);
                 }
             }
             tmp.isTransposed = false;
@@ -275,7 +329,8 @@ namespace LowLevel {
             }
             for (size_t i = 0; i < this->size().first; ++i) {
                 for (size_t j = 0; j < this->size().second; ++j) {
-                    this->matrix[i][j] /= static_cast<T>(other);
+                    if (is_float) this->matrix[i][j] = roundF(this->matrix[i][j] / roundF(static_cast<T>(other)));
+                    else this->matrix[i][j] /= static_cast<T>(other);
                 }
             }
             return *this;
@@ -318,7 +373,8 @@ namespace LowLevel {
             }
             for (size_t x = 0; x < n; ++x) {
                 for (size_t y = 0; y < m; ++y) {
-                    matrix[x][y] += static_cast<T>(other.matrix[x][y]);
+                    if (is_float) matrix[x][y] = roundF(matrix[x][y] + roundF(static_cast<T>(other.matrix[x][y])));
+                    else matrix[x][y] += static_cast<T>(other.matrix[x][y]);
                 }
             }
             return *this;
@@ -359,6 +415,7 @@ namespace LowLevel {
 
         template<typename T_other>
         bool operator==(const Matrix<T_other> &other) const {
+            if (is_float) return equalPrecision(other);
             if (this->size() != other.size()) return false;
             for (size_t i = 0; i < this->size().first; ++i) {
                 for (size_t j = 0; j < this->size().second; ++j) {
@@ -436,6 +493,7 @@ namespace LowLevel {
     template<typename T>
     std::ostream &operator<<(std::ostream &out, const Matrix<T> &mat) {
         for (size_t i = 0; i < mat.size().first; ++i) {
+            out << std::setprecision(PRECISION);
             for (size_t j = 0; j < mat.size().second; ++j) {
                 out << mat.matrix[i][j] << ' ';
             }

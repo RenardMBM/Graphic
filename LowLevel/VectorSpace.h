@@ -7,7 +7,17 @@ namespace LowLevel {
     template<typename T>
     class VectorSpace {
     private:
-        typedef long double floatType;
+        bool is_float;
+        T roundF(const T& num){
+            if (!is_float) return num;
+
+            updEPS();
+            T n_num = num - (std::fmod(num, EPS));
+            if (std::abs(std::fmod(num, EPS)) >= EPS / 2)
+                n_num += (num > 0? 1 : -1) * EPS;
+            return n_num;
+        }
+
         std::vector<Vector<T>> basis;
         Matrix<T> gram;
         std::pair<size_t, size_t> _dim;
@@ -16,6 +26,7 @@ namespace LowLevel {
                                                                     gram(Matrix<T>::gram(basis)),
                                                                     _dim({(basis.size() ? basis[0].size() : 0),
                                                                           basis.size()}) {
+            this->is_float = check_float<T>();
             for (const Vector<T> &b: basis) {
                 if (b.size() != _dim.first) {
                     throw MatrixSizeError::not_rectangular("Basis",

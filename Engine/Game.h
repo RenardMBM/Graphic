@@ -8,9 +8,9 @@
 #include "../LowLevel/LowLevel.h"
 
 namespace Engine {
-    class Game: protected Entity {
+    class Game{
     private:
-        typedef long double floatType;
+        LowLevel::CoordinateSystem<floatType> cs;
         EntitiesList entities;
     public:
         Game();

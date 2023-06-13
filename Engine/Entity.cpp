@@ -8,9 +8,17 @@ namespace Engine {
                                 LowLevel::Vector<floatType>({1, 0, 0}),
                                 LowLevel::Vector<floatType>({0, 1, 0}),
                                 LowLevel::Vector<floatType>({0, 0, 1})}))
-            ){}
-    Entity::Entity(const LowLevel::CoordinateSystem<floatType>& cs): cs(cs){}
-    Entity::Entity(const Entity& entity) = default;
+            ){
+        identifier = std::make_shared<Identifier>(HexIdentifier());
+    }
+    Entity::Entity(const LowLevel::CoordinateSystem<floatType>& cs): cs(cs){
+        identifier = std::make_shared<Identifier>(HexIdentifier());
+    }
+    Entity::Entity(const Entity& entity){
+        cs = entity.cs;
+        properties = entity.properties;
+        identifier = std::make_shared<Identifier>(*entity.identifier);
+    };
 
     void Entity::set_property(const std::string& prop, const std::any& value){
         properties[prop] = value;

@@ -4,11 +4,8 @@
 
 #ifndef GRAPHIC_GRAPHIC_H
 #define GRAPHIC_GRAPHIC_H
-#include "./LowLevel/Matrix.h"
-#include "./LowLevel/Vector.h"
-#include "./LowLevel/VectorSpace.h"
-#include "./LowLevel/Point.h"
-#include "./LowLevel/CoordinateSystem.h"
+#include "LowLevel/LowLevel.h"
+#include "Engine/Engine.h"
 
 
 #endif //GRAPHIC_GRAPHIC_H

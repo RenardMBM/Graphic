@@ -5,7 +5,19 @@
 #include "Ray.h"
 
 namespace Engine {
-    Ray::Ray(LowLevel::CoordinateSystem<Engine::Ray::floatType> cs,
-             LowLevel::Point<Engine::Ray::floatType> pt,
-             LowLevel::Vector<Engine::Ray::floatType> direction): cs(cs), pt(pt), direction(direction) {}
+    Ray::Ray(const LowLevel::CoordinateSystem<floatType>& cs,
+             const LowLevel::Point<floatType>& pt,
+             const LowLevel::Vector<floatType>& direction): cs(cs), pt(pt), direction(direction) {
+        if (this->direction.isTransposed) this->direction.transpose();
+    }
+
+    bool Ray::operator==(const Ray &other) const {
+        return (this->pt == other.pt &&
+                this->cs == other.cs &&
+                this->direction == other.direction);
+    }
+
+    bool Ray::operator!=(const Ray &other) const {
+        return !(this->operator==(other));
+    }
 } // Engine

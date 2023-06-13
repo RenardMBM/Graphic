@@ -17,7 +17,8 @@ namespace Engine {
         void append(const Entity&);
         void remove(const std::shared_ptr<Identifier>& id);
         Entity get(const std::shared_ptr<Identifier>&) const;
-        void exec(std::function<void(Entity&)>& func);
+        void exec(std::function<void(Entity&)> func);
+        size_t size() const;
 
         Entity& operator[](const std::shared_ptr<Identifier>&);
         Entity operator[](const std::shared_ptr<Identifier>&) const;

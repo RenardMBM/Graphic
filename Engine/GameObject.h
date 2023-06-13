@@ -7,11 +7,10 @@
 namespace Engine {
 
     class GameObject: public Entity {
-    private:
-        typedef long double floatType;
     public:
-        GameObject();
-        GameObject(const LowLevel::Point<floatType>&, const LowLevel::Vector<floatType>&);
+        GameObject(const LowLevel::CoordinateSystem<floatType>& cs= LowLevel::CoordinateSystem<floatType>());
+        GameObject(const LowLevel::Point<floatType>&, const LowLevel::Vector<floatType>&,
+                const LowLevel::CoordinateSystem<floatType>& cs= LowLevel::CoordinateSystem<floatType>());
 
         void move(const LowLevel::Vector<floatType>&);
         void planar_rotate(const std::pair<size_t, size_t>&, floatType);
