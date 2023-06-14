@@ -8,7 +8,7 @@ namespace LowLevel {
     class VectorSpace {
     private:
         bool is_float;
-        T roundF(const T& num){
+        T roundF(const T& num) const {
             if (!is_float) return num;
 
             updEPS();
@@ -18,10 +18,11 @@ namespace LowLevel {
             return n_num;
         }
 
-        std::vector<Vector<T>> basis;
         Matrix<T> gram;
         std::pair<size_t, size_t> _dim;
     public:
+        std::vector<Vector<T>> basis;
+
         explicit VectorSpace(const std::vector<Vector<T>> &basis) : basis(basis.begin(), basis.end()),
                                                                     gram(Matrix<T>::gram(basis)),
                                                                     _dim({(basis.size() ? basis[0].size() : 0),
@@ -43,7 +44,7 @@ namespace LowLevel {
             return (other.basis == this->basis);
         }
 
-        T scalar_product(const Vector<T> &first, const Vector<T> &second) {
+        T scalar_product(const Vector<T> &first, const Vector<T> &second) const {
             Vector<T> tmp_first(first);
             tmp_first.isTransposed = true;
             Vector<T> tmp_second(second);
@@ -53,7 +54,7 @@ namespace LowLevel {
             return std::get<T>(calc);
         };
 
-        Vector<T> vector_product(const Vector<T> &first, const Vector<T> &second) {
+        Vector<T> vector_product(const Vector<T> &first, const Vector<T> &second) const {
             if (_dim.first != 3 || _dim.second != 3 || first.size() != 3 || second.size() != 3) {
                 throw MatrixSizeError::not_matches({
                                                            {"Basis",  {_dim,               {"3", "3"}}},
@@ -68,7 +69,7 @@ namespace LowLevel {
                    tmp3 * (first[0] * second[1] - first[1] * second[0]);
         }
 
-        Vector<T> as_vector(const Point<T> &pt) {
+        Vector<T> as_vector(const Point<T> &pt) const {
             if (pt.size() != _dim.second) {
                 throw MatrixSizeError::not_match("Point", {pt.size(), 1},
                                                  "VectorSpace(basis)", _dim,
@@ -84,7 +85,7 @@ namespace LowLevel {
             return tmp;
         };
 
-        size_t dim() const{
+        size_t dim() const {
             return _dim.first;
         }
 

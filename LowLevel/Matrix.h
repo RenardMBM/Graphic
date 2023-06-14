@@ -46,7 +46,7 @@ namespace LowLevel {
 
     private:
         bool is_float;
-        T roundF(const T& num){
+        T roundF(const T& num) const {
             if (!is_float) return num;
 
             updEPS();
@@ -73,24 +73,6 @@ namespace LowLevel {
                 d_col = 0;
             }
             return tmp;
-        }
-
-        bool is_identity(floatType precision) {
-            updEPS();
-            if (precision < 0) precision = EPS;
-            if (this->size().first != this->size().second) return false;
-            for (size_t i = 0; i < n; ++i) {
-                for (size_t j = 0; j < n; ++j) {
-                    if (i == j) {
-                        if (std::max(matrix[i][j], static_cast<T>(1)) - std::min(matrix[i][j], static_cast<T>(1)) > precision)
-                            return false;
-                    } else {
-                        if (std::abs(matrix[i][j]) > precision)
-                            return false;
-                    }
-                }
-            }
-            return true;
         }
 
     public:
@@ -217,7 +199,7 @@ namespace LowLevel {
                             }
                             else {
                                 if (k >= i) mat[j][k] -= tmp * mat[i][k];
-                                else res.matrix[j][k] -= tmp * res.matrix[i][k];
+                                res.matrix[j][k] -= tmp * res.matrix[i][k];
                             }
                         }
                     }
@@ -226,7 +208,7 @@ namespace LowLevel {
             return res;
         }
 
-        floatType norm() {
+        floatType norm() const {
             floatType tmp = 0;
             for (size_t i = 0; i < size().first; ++i) {
                 for (size_t j = 0; j < size().second; ++j) {
@@ -239,7 +221,7 @@ namespace LowLevel {
         }
 
         template<typename T_other>
-        bool equalPrecision(const Matrix<T_other> &other, int precision = -1) const{
+        bool equalPrecision(const Matrix<T_other> &other, int precision = -1) const {
             floatType p;
             if (precision < 0) p = EPS;
             else {
@@ -294,14 +276,14 @@ namespace LowLevel {
         }
 
         template<typename T_other>
-        Matrix<T> operator*(const T_other &other) {
+        Matrix<T> operator*(const T_other &other) const {
             Matrix<T> tmp = *this;
             tmp *= other;
             return tmp;
         }
 
         template<typename T_other>
-        Vector<T> operator*(const Vector<T_other> &vec) {
+        Vector<T> operator*(const Vector<T_other> &vec) const {
             if (vec.isTransposed || vec.size() != this->size().second) {
                 std::pair<size_t, size_t> tmp_sz = {1, vec.size()};
                 if (!vec.isTransposed) std::swap(tmp_sz.first, tmp_sz.second);
@@ -351,7 +333,7 @@ namespace LowLevel {
         }
 
         template<typename T_other>
-        Matrix<T> operator/(const T_other &other) {
+        Matrix<T> operator/(const T_other &other) const {
             Matrix<T> tmp = *this;
             tmp /= other;
             return tmp;
@@ -386,14 +368,14 @@ namespace LowLevel {
         }
 
         template<typename T_other>
-        Matrix<T> operator+(const Matrix<T_other> &other) {
+        Matrix<T> operator+(const Matrix<T_other> &other) const {
             Matrix<T> tmp = *this;
             tmp += other;
             return tmp;
         }
 
         template<typename T_other>
-        Matrix<T> operator-(const Matrix<T_other> &other) {
+        Matrix<T> operator-(const Matrix<T_other> &other) const {
             Matrix<T> tmp = *this;
             tmp -= other;
             return tmp;

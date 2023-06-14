@@ -4,4 +4,4 @@ project(Graphic)
 set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(Tests)
-add_executable(Graphic Graphic.h)
+add_executable(Graphic main.cpp Graphic.h)

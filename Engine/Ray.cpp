@@ -20,4 +20,8 @@ namespace Engine {
     bool Ray::operator!=(const Ray &other) const {
         return !(this->operator==(other));
     }
+
+    void Ray::normalize() {
+        this->direction = this->direction.normalize();
+    }
 } // Engine

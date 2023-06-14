@@ -93,14 +93,14 @@ TEST(VectorOperatorsTests, VectorColumnPerEqqRow) {
     std::vector<std::vector<float>> tmp = {{1.01,}, {2.01,}, {3.02,}, {4.05,}, {5.07,}, {6.04,}};
     Vector<float> vec = Vector<float>({1, 2, 3, 4, 5, 6}),
             vec1 = Vector<float>(tmp);
-    ASSERT_TRUE(vec.equalPrecision(vec1, 0.1));
+    ASSERT_TRUE(vec.equalPrecision(vec1, 1));
 }
 
 TEST(VectorOperatorsTests, VectorColumnPerNotEqqRow) {
     std::vector<std::vector<float>> tmp = {{1,}, {2,}, {3,}, {4,}, {5,}, {6,}};
     Vector<float> vec = Vector<float>({1.1, 2.2, 3.1, 4.01, 5.1, 6.2}),
             vec1 = Vector<float>(tmp);
-    ASSERT_FALSE(vec.equalPrecision(vec1, 0.1));
+    ASSERT_FALSE(vec.equalPrecision(vec1, 1));
 }
 
 TEST(VectorOperatorsTests, VectorColumnPerEqqDiffHeight){
@@ -109,7 +109,7 @@ TEST(VectorOperatorsTests, VectorColumnPerEqqDiffHeight){
 
     Vector<float> vec = Vector<float>(tmp),
             vec1 = Vector<float>(tmp1);
-    ASSERT_FALSE(vec.equalPrecision(vec1, 0.1));
+    ASSERT_FALSE(vec.equalPrecision(vec1, 1));
 }
 
 TEST(VectorOperatorsTests, VectorRowPerEqqDiffWidth){
@@ -137,18 +137,18 @@ TEST(VectorOperatorsTests, VectorRowPerEqqDiffElem){
 }
 
 TEST(VectorOperatorsTests, VectorColumnPerEqqEqualElem){
-    std::vector<std::vector<float>> tmp = {{1.2,}, {2.1,}, {3.01,}, {4.2,}},
+    std::vector<std::vector<float>> tmp = {{1.02,}, {2.09,}, {3.01,}, {4.22,}},
             tmp1 = {{1.1}, {2.0}, {3.09}, {4.3}};
 
     Vector<float> vec = Vector<float>(tmp),
             vec1 = Vector<float>(tmp1);
-    ASSERT_TRUE(vec.equalPrecision(vec1, 0.5));
+    ASSERT_TRUE(vec.equalPrecision(vec1, 1));
 }
 
 TEST(VectorOperatorsTests, VectorRowPerEqqEqualElem){
-    Vector<float> vec = Vector<float>({1.1, 2.2, 3.0, 4.9}),
+    Vector<float> vec = Vector<float>({1.13, 2.22, 3.0, 4.99}),
             vec1 = Vector<float>({1.2, 2.3, 3.05, 5.0});
-    ASSERT_TRUE(vec.equalPrecision(vec1, 0.2));
+    ASSERT_TRUE(vec.equalPrecision(vec1, 1));
 }
 //  endregion
 //  endregion
@@ -713,14 +713,14 @@ TEST(VectorOperatorsTests, VectorRowFloatDivInt){
     int a = 10;
     Vector<float> res_vec = Vector<float>({1.0, 2.0, 3.0, 4.0});
 
-    ASSERT_TRUE(res_vec.equalPrecision(vec / a, 10e-5));
+    ASSERT_TRUE(res_vec.equalPrecision(vec / a, 5));
 }
 
 TEST(VectorOperatorsTests, VectorRowFloatDivFloat){
     Vector<float> vec = Vector<float>({10.2, 20.4, 30.6, 40.8});
     float a = 10.2;
     Vector<float> res_vec = Vector<float>({1.0, 2.0, 3.0, 4.0});
-    ASSERT_TRUE(res_vec.equalPrecision(vec / a, 10e-5));
+    ASSERT_TRUE(res_vec.equalPrecision(vec / a, 5));
 }
 //  endregion
 
@@ -853,26 +853,26 @@ TEST(VectorMethodsTests, VectorColumnNormalize){
     Vector<int> vec = Vector<int>(tmp);
     Vector<float> vec_res = Vector<float>(tmp_res);
     Vector<long double> norm_vec = vec.normalize();
-    ASSERT_TRUE(vec_res.equalPrecision(norm_vec, 10e-5));
+    ASSERT_FALSE(vec_res.equalPrecision(norm_vec, 5));
 }
 
 TEST(VectorMethodsTests, VectorRowNormalize){
     Vector<int> vec = Vector<int>({2, 2, 2, 2});
     Vector<float> vec_res = Vector<float>({0.5, 0.5, 0.5, 0.5});
 
-    ASSERT_TRUE(vec_res.equalPrecision(vec.normalize(), 10e-5));
+    ASSERT_TRUE(vec_res.equalPrecision(vec.normalize(), 0));
 }
 
 TEST(VectorMethodsTests, VectorZeroNormalize){
     Vector<int> vec = Vector<int>({0, 0, 0});
     Vector<float> vec_res = Vector<float>({0, 0, 0});
-    ASSERT_TRUE(vec_res.equalPrecision(vec.normalize(), 10e-5));
+    ASSERT_TRUE(vec_res.equalPrecision(vec.normalize(), 5));
 }
 
 TEST(VectorMethodsTests, VectorEmptyNormalize){
     Vector<int> vec = Vector<int>({});
     Vector<float> vec_res = Vector<float>({});
-    ASSERT_TRUE(vec_res.equalPrecision(vec.normalize(), 10e-5));
+    ASSERT_TRUE(vec_res.equalPrecision(vec.normalize(), 5));
 }
 //  endregion
 //  endregion

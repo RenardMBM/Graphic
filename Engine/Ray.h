@@ -6,8 +6,6 @@ namespace Engine {
     typedef long double floatType;
 
     class Ray {
-    private:
-//        using floatType = long double;
     public:
         LowLevel::CoordinateSystem<floatType> cs;
         LowLevel::Point<floatType> pt;
@@ -18,6 +16,8 @@ namespace Engine {
 
         bool operator==(const Ray&) const;
         bool operator!=(const Ray&) const;
+
+        void normalize();
     };
 
 } // Engine

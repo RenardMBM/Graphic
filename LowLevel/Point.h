@@ -8,7 +8,7 @@ namespace LowLevel {
     class Point : private Vector<T> {
     private:
         bool is_float;
-        T roundF(const T& num){
+        T roundF(const T& num) const {
             if (!is_float) return num;
 
             updEPS();
@@ -26,9 +26,12 @@ namespace LowLevel {
 
         explicit Point(const Vector<T> &other) {
             this->is_float = check_float<T>();
-            this->matrix = other.matrix;
             this->n = other.size();
             this->m = 1;
+            this->matrix = std::vector<std::vector<T>>(this->n, std::vector<T>(1));
+            for (size_t i = 0; i < this->n; ++i){
+                this->matrix[i][0] = other[i];
+            }
         }
         // endregion
 
@@ -38,7 +41,7 @@ namespace LowLevel {
         }
 
         template<typename T_other>
-        bool equalPrecision(const Point<T_other> &other, int precision = -1) const{
+        bool equalPrecision(const Point<T_other> &other, int precision = -1) const {
             floatType p;
             if (precision < 0) p = EPS;
             else {

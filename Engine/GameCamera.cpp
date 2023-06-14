@@ -62,4 +62,37 @@ namespace Engine {
         set_property("vfov", vfov);
         set_property("drawDistance", drawDistance);
     }
+
+    LowLevel::Matrix<Ray> GameCamera::get_rays_matrix(size_t n, size_t m) const{ // n - height, m - width
+        LowLevel::Matrix<Ray> mat(n, m,
+                                  Ray(cs,
+                                      std::any_cast<LowLevel::Point<floatType>>(
+                                          get_property("position" )),
+                                      LowLevel::Vector<floatType>({1,0,0}).transposed()));
+
+        auto alpha = std::any_cast<floatType>(get_property("vfov")),
+                beta = std::any_cast<floatType>(get_property("fov"));
+        floatType d_alpha = alpha / (floatType)m, d_beta = beta / (floatType)n,
+                h_alpha = alpha / 2, h_beta = beta / 2, alpha_j, beta_i;
+
+        for (size_t i = 0; i < n; ++i){
+            for (size_t j = 0; j < m; ++j){
+                alpha_j = d_alpha * (floatType)j - h_alpha;
+                beta_i = d_beta * (floatType)i - h_beta;
+
+                LowLevel::Vector<floatType> v({1,0,0}); v.transpose();
+
+                LowLevel::Vector<floatType> n_dir = rotate_vec3(
+                                v,
+                                0,
+                                alpha_j,
+                                beta_i);
+
+                mat[i][j].direction = cs.space.as_vector(
+                        LowLevel::Point<floatType>(n_dir /(v % n_dir)));
+            }
+        }
+        return mat;
+    }
+
 } // Engine

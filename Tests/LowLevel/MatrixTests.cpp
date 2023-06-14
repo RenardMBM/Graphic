@@ -162,7 +162,7 @@ TEST(MatrixOperatorsTests, MatrixFloatMulFloat){
     Matrix<float> mat = Matrix<float>({{1.0, 2.0}, {3.0, 4.0}});
     float a = 10.2;
     Matrix<float> res_mat = Matrix<float>({{10.2, 20.4}, {30.6, 40.8}});
-    ASSERT_TRUE(res_mat.equalPrecision(mat * a, 10e-3));
+    ASSERT_TRUE(res_mat.equalPrecision(mat * a, 3));
 }
 //  endregion
 
@@ -183,6 +183,9 @@ TEST(MatrixOperatorsTests, MatrixDivSuccess){
                                       });
     Matrix<long double> inv_mat1 = mat1.inverse();
     Matrix<int> calc_mat = mat / mat1;
+    std::cout << calc_mat << "\n";
+    mat /= mat1;
+    std::cout << mat << "\n";
     ASSERT_TRUE(calc_mat == res_mat);
 }
 
@@ -348,28 +351,24 @@ TEST(MatrixMethodsTests, MatrixTOne){
 TEST(MatrixMethodsTests, MatrixEqPreCorrectFalse){
     Matrix<float> mat({{1, 2}, {3, 4}}),
             mat1({{1.003, 2.002}, {3.001, 4}});
-    float precision = 10e-5;
-    ASSERT_FALSE(mat.equalPrecision(mat1, precision));
+    ASSERT_FALSE(mat.equalPrecision(mat1, 5));
 }
 TEST(MatrixMethodsTests, MatrixEqPreCorrectTrue){
     Matrix<float> mat({{1, 2}, {3, 4}}),
             mat1({{1.003, 2.002}, {3.001, 4}});
-    float precision = 0.01;
-    ASSERT_TRUE(mat.equalPrecision(mat1, precision));
+    ASSERT_TRUE(mat.equalPrecision(mat1, 2));
 }
 
 TEST(MatrixMethodsTests, MatrixEqPreDiffWidth){
     Matrix<float> mat({{1, 2}, {3, 4}}),
             mat1({{1.003, 2.002}, {3.001, 4}, {0, 0}});
-    float precision = 10e-5;
-    ASSERT_FALSE(mat.equalPrecision(mat1, precision));
+    ASSERT_FALSE(mat.equalPrecision(mat1, 5));
 }
 
 TEST(MatrixMethodsTests, MatrixEqPreDiffHeight){
     Matrix<float> mat({{1, 2}, {3, 4}}),
             mat1({{1.003, 2.002, 0}, {3.001, 4, 0}});
-    float precision = 10e-5;
-    ASSERT_FALSE(mat.equalPrecision(mat1, precision));
+    ASSERT_FALSE(mat.equalPrecision(mat1, 5));
 }
 //  endregion
 
@@ -427,7 +426,7 @@ TEST(MatrixMethodsTests, MatrixInvertTwoByTwo){
                                                   {-1, 1.5},
                                                   {1, -1}
                                           });
-    ASSERT_TRUE(mat.inverse().equalPrecision(res_mat, 1e-9));
+    ASSERT_TRUE(mat.inverse().equalPrecision(res_mat, 9));
 }
 
 TEST(MatrixMethodsTests, MatrixInvertDegenerate){
@@ -516,7 +515,7 @@ TEST(MatrixStaticMethodsTests, MatrixGramFloatVectors){
                                             {0, 0.49}
                                     });
 
-    ASSERT_TRUE(res_mat.equalPrecision(gr_mat, 10e-5));
+    ASSERT_TRUE(res_mat.equalPrecision(gr_mat, 5));
 }
 
 TEST(MatrixStaticMethodsTests, MatrixGramFloatVectorsNotOrt){
@@ -528,7 +527,7 @@ TEST(MatrixStaticMethodsTests, MatrixGramFloatVectorsNotOrt){
                                             {8.01, 2.13},
                                             {2.13, 0.58}
                                     });
-    ASSERT_TRUE(res_mat.equalPrecision(gr_mat, 10e-5));
+    ASSERT_TRUE(res_mat.equalPrecision(gr_mat, 5));
 }
 
 TEST(MatrixStaticMethodsTests, MatrixGramVectorSizeThree){

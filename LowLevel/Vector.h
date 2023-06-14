@@ -69,7 +69,7 @@ namespace LowLevel {
         // endregion
 
         // region methods
-        T roundF(const T& num){
+        T roundF(const T& num) const {
             if (!is_float) return num;
 
             updEPS();
@@ -83,11 +83,11 @@ namespace LowLevel {
             return _size();
         }
 
-        floatType length() {
+        floatType length() const {
             return sqrt(this->operator%(*this));
         }
 
-        Vector<floatType> normalize() {
+        Vector<floatType> normalize() const {
             Vector<floatType> tmp(*this);
             floatType ln = this->length();
             for (size_t i = 0; ln != 0 && i < this->size(); ++i) {
@@ -97,7 +97,7 @@ namespace LowLevel {
         }
 
         template<typename T_other>
-        bool equalPrecision(const Vector<T_other> &other, int precision = -1) const{
+        bool equalPrecision(const Vector<T_other> &other, int precision = -1) const {
             floatType p;
             if (precision < 0) p = EPS;
             else {
@@ -117,7 +117,7 @@ namespace LowLevel {
             isTransposed = !isTransposed;
         }
 
-        Vector<T> transposed() {
+        Vector<T> transposed() const {
             Vector<T> tmp = *this;
             tmp.transpose();
             return tmp;
@@ -141,17 +141,17 @@ namespace LowLevel {
         // region product
         template<typename T_other>
         // product with scalar
-        Vector<T> operator*(const T_other &other) {
+        Vector<T> operator*(const T_other &other) const {
             Vector<T> tmp = *this;
             for (size_t i = 0; i < tmp.size(); ++i) {
                 if (is_float) tmp[i] = roundF(tmp[i] * roundF(static_cast<T>(other)));
-                tmp[i] *= static_cast<T>(other);
+                else tmp[i] *= static_cast<T>(other);
             }
             return tmp;
         }
 
         template<typename T_other>
-        mulVecByVecTypes operator*(const Vector<T_other> &other) {
+        mulVecByVecTypes operator*(const Vector<T_other> &other) const {
             if (this->isTransposed && !other.isTransposed &&
                 this->size() == other.size()) { // multiplication row by column
                 T tmp = 0;
@@ -167,7 +167,7 @@ namespace LowLevel {
                 for (size_t i = 0; i < this->size(); ++i) {
                     for (size_t j = 0; j < other.size(); ++j) {
                         if (is_float) tmp.matrix[i][j] = roundF(this->operator[](i) * roundF(static_cast<T>(other.operator[](j))));
-                        tmp.matrix[i][j] = this->operator[](i) * static_cast<T>(other.operator[](j));
+                        else tmp.matrix[i][j] = this->operator[](i) * static_cast<T>(other.operator[](j));
                     }
                 }
                 return mulVecByVecTypes(tmp);
@@ -185,7 +185,7 @@ namespace LowLevel {
 
         template<typename T_other>
         // product with matrix
-        Vector<T> operator*(const Matrix<T_other> &other) {
+        Vector<T> operator*(const Matrix<T_other> &other) const {
             if (!this->isTransposed || this->size() != other.size().first) {
                 std::pair<size_t, size_t> tmp_sz = {1, this->size()};
                 if (!this->isTransposed) std::swap(tmp_sz.first, tmp_sz.second);
@@ -216,7 +216,7 @@ namespace LowLevel {
         // endregion
 
         template<typename T_other>
-        Vector<T> operator/(const T_other &other) {
+        Vector<T> operator/(const T_other &other) const {
             Vector<T> tmp = *this;
             tmp /= other;
             return tmp;
@@ -252,7 +252,7 @@ namespace LowLevel {
         }
 
         template<typename T_other>
-        Vector<T> operator+(const Vector<T_other> &other) {
+        Vector<T> operator+(const Vector<T_other> &other) const {
             Vector<T> tmp = *this;
             tmp += other;
             return tmp;
@@ -264,7 +264,7 @@ namespace LowLevel {
         }
 
         template<typename T_other>
-        Vector<T> operator-(const Vector<T_other> &other) {
+        Vector<T> operator-(const Vector<T_other> &other) const {
             Vector<T> tmp = *this;
             tmp -= other;
             return tmp;
@@ -282,7 +282,7 @@ namespace LowLevel {
 
         // region vector_operator
         template<typename T_other>
-        T operator%(const Vector<T_other> &other) { // scalar product
+        T operator%(const Vector<T_other> &other) const { // scalar product
             if (this->size() != other.size()) {
                 throw VectorSizeError::not_match(
                         "Vector",
@@ -303,7 +303,7 @@ namespace LowLevel {
         }
 
         template<typename T_other>
-        Vector<T> operator^(const Vector<T_other> &other) { // vector product
+        Vector<T> operator^(const Vector<T_other> &other) const { // vector product
             if (this->size() != 3 || other.size() != 3) {
                 throw VectorSizeError::not_match("Vector", this->size(),
                                                  "Vector", other.size(),
