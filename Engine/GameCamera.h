@@ -20,6 +20,11 @@ namespace Engine {
                             const LowLevel::CoordinateSystem<floatType>& cs = LowLevel::CoordinateSystem<floatType>());
 
         LowLevel::Matrix<Ray> get_rays_matrix(size_t n, size_t m) const;
+
+        floatType get_aspectRatio() const;
+        floatType get_fov() const;
+        floatType get_vfov() const;
+        size_t get_drawDistance() const;
     };
 
 } // Engine

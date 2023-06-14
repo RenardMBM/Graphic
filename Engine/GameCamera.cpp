@@ -63,15 +63,28 @@ namespace Engine {
         set_property("drawDistance", drawDistance);
     }
 
+
+    floatType GameCamera::get_aspectRatio() const{
+        return std::any_cast<floatType>(get_property("aspectRatio"));
+    }
+    floatType GameCamera::get_fov() const{
+        return std::any_cast<floatType>(get_property("fov"));
+    }
+    floatType GameCamera::get_vfov() const{
+        return std::any_cast<floatType>(get_property("vfov"));
+    }
+    size_t GameCamera::get_drawDistance() const{
+        return std::any_cast<size_t>(get_property("drawDistance"));
+    }
+
     LowLevel::Matrix<Ray> GameCamera::get_rays_matrix(size_t n, size_t m) const{ // n - height, m - width
         LowLevel::Matrix<Ray> mat(n, m,
                                   Ray(cs,
-                                      std::any_cast<LowLevel::Point<floatType>>(
-                                          get_property("position" )),
+                                      get_position(),
                                       LowLevel::Vector<floatType>({1,0,0}).transposed()));
 
-        auto alpha = std::any_cast<floatType>(get_property("vfov")),
-                beta = std::any_cast<floatType>(get_property("fov"));
+        auto alpha = get_vfov(),
+             beta = get_fov();
         floatType d_alpha = alpha / (floatType)m, d_beta = beta / (floatType)n,
                 h_alpha = alpha / 2, h_beta = beta / 2, alpha_j, beta_i;
 

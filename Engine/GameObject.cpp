@@ -49,16 +49,16 @@ namespace Engine {
     void GameObject::move(const LowLevel::Vector<floatType>& vec){
         if (vec.size() != cs.space.dim()) throw std::exception(); // TODO: exception
 
-        bool isFixedLook = std::any_cast<bool>(get_property("isFixedLook"));
+        bool isFixedLook = get_isFixedLook();
         if (isFixedLook) {
-            auto dir = std::any_cast<LowLevel::Vector<floatType>>(get_property("direction"));
+            auto dir = get_direction();
             set_direction(dir - vec);
         }
-        set_position(std::any_cast<LowLevel::Point<floatType>>(get_property("position")) + vec);
+        set_position(get_position() + vec);
     }
     void GameObject::planar_rotate(const std::pair<size_t, size_t>& inds, floatType angle){
         if (inds.first >= cs.space.dim() || inds.second >= cs.space.dim()) throw std::range_error("indexes must be less dim");
-        auto dir = std::any_cast<LowLevel::Vector<floatType>>(get_property("direction"));
+        auto dir = get_direction();
         if (!dir.isTransposed) dir.transpose();
         LowLevel::Matrix<floatType> rot_mat = LowLevel::Matrix<floatType>::rotation_matrix(inds,
                                                                                            angle,
@@ -68,7 +68,7 @@ namespace Engine {
         set_direction(n_dir);
     }
     void GameObject::rotate_3d(floatType angle_x, floatType angle_y, floatType angle_z){
-        auto dir = std::any_cast<LowLevel::Vector<floatType>>(get_property("direction"));
+        auto dir = get_direction();
         if (!dir.isTransposed) dir.transpose();
 
         LowLevel::Matrix<floatType> tait_mat = LowLevel::Matrix<floatType>::tait_bryan_matrix(angle_x,
@@ -109,7 +109,7 @@ namespace Engine {
     }
     void GameObject::set_direction(const LowLevel::Vector<floatType>& dir){
         if (dir.size() != cs.space.dim()) throw std::exception(); // TODO: exception
-        auto odir = std::any_cast<LowLevel::Vector<floatType>>(get_property("direction"));
+        auto odir = get_direction();
         if (dir.size() == 3) {
             std::vector<floatType> angles = get_angles_rot(odir, dir);
             rotate_3d(angles[0], angles[1], angles[2]);
@@ -117,6 +117,16 @@ namespace Engine {
         set_property("direction", dir);
     }
     // endregion
+
+    LowLevel::Point<floatType> GameObject::get_position() const{
+        return std::any_cast<LowLevel::Point<floatType>>(get_property("position"));
+    }
+    LowLevel::Vector<floatType> GameObject::get_direction() const{
+        return std::any_cast<LowLevel::Vector<floatType>>(get_property("direction"));
+    }
+    bool GameObject::get_isFixedLook() const{
+        return std::any_cast<bool>(get_property("isFixedLook"));
+    }
 
     floatType GameObject::intersection_distance(const Ray&) const{
         return 0;
