@@ -77,14 +77,15 @@ namespace Engine {
         return std::any_cast<size_t>(get_property("drawDistance"));
     }
 
-    LowLevel::Matrix<Ray> GameCamera::get_rays_matrix(size_t n, size_t m) const{ // n - height, m - width
+    LowLevel::Matrix<Ray> GameCamera::get_rays_matrix(size_t n, size_t m) { // n - height, m - width
+        if (!was_move) return rays_matrix;
         LowLevel::Matrix<Ray> mat(n, m,
                                   Ray(cs,
                                       get_position(),
                                       LowLevel::Vector<floatType>({1,0,0}).transposed()));
 
         auto alpha = get_vfov(),
-             beta = get_fov();
+                beta = get_fov();
         floatType d_alpha = alpha / (floatType)m, d_beta = beta / (floatType)n,
                 h_alpha = alpha / 2, h_beta = beta / 2, alpha_j, beta_i;
 
@@ -96,16 +97,18 @@ namespace Engine {
                 LowLevel::Vector<floatType> v({1,0,0}); v.transpose();
 
                 LowLevel::Vector<floatType> n_dir = rotate_vec3(
-                                v,
-                                0,
-                                alpha_j,
-                                beta_i);
+                        v,
+                        0,
+                        alpha_j,
+                        beta_i);
 
                 mat[i][j].direction = cs.space.as_vector(
-                        LowLevel::Point<floatType>(n_dir /(v % n_dir)));
+                        LowLevel::Point<floatType>(n_dir / (v % n_dir)));
             }
         }
-        return mat;
+        was_move = false;
+        rays_matrix = mat;
+        return rays_matrix;
     }
 
 } // Engine

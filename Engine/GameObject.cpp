@@ -1,7 +1,6 @@
 #include "GameObject.h"
 
 namespace Engine {
-// region constructors
     std::vector<floatType> GameObject::get_angles_rot(const LowLevel::Vector<floatType>& vec1,
                                                       const LowLevel::Vector<floatType>& vec2) {
         if (vec1.size() != vec2.size()) throw std::exception(); // "size of vectors must be equal"
@@ -22,9 +21,13 @@ namespace Engine {
         return angles;
     }
 
+// region constructors
     GameObject::GameObject(const LowLevel::CoordinateSystem<floatType>& cs): Entity(cs){
         this->local_cs = LowLevel::CoordinateSystem<floatType>();
         set_property("isFixedLook", false);
+        LowLevel::Vector<floatType> tmp_dir(cs.space.dim());
+        tmp_dir[0] = 1;
+        set_property("direction", tmp_dir);
         set_position(LowLevel::Point<floatType>(cs.space.dim()));
         set_direction(LowLevel::Vector<floatType>(cs.space.dim(), 1l));
     }
@@ -38,6 +41,9 @@ namespace Engine {
         LowLevel::Vector<floatType> f_dir(dir);
 
         if (f_dir.isTransposed) f_dir.transpose();
+        LowLevel::Vector<floatType> tmp_dir(cs.space.dim());
+        tmp_dir[0] = 1;
+        set_property("direction", tmp_dir);
 
         set_position(pos);
         set_direction(f_dir);
@@ -55,6 +61,7 @@ namespace Engine {
             set_direction(dir - vec);
         }
         set_position(get_position() + vec);
+        was_move = true;
     }
     void GameObject::planar_rotate(const std::pair<size_t, size_t>& inds, floatType angle){
         if (inds.first >= cs.space.dim() || inds.second >= cs.space.dim()) throw std::range_error("indexes must be less dim");
@@ -66,6 +73,7 @@ namespace Engine {
         LowLevel::Vector<floatType> n_dir = dir * rot_mat;
         if (n_dir.isTransposed) n_dir.transpose();
         set_direction(n_dir);
+        was_move = true;
     }
     void GameObject::rotate_3d(floatType angle_x, floatType angle_y, floatType angle_z){
         auto dir = get_direction();
@@ -78,7 +86,8 @@ namespace Engine {
 
         std::vector<LowLevel::Vector<floatType>> n_basis_loc_cs = local_cs.space.basis;
         for (auto & basis_vec: n_basis_loc_cs){
-            basis_vec = basis_vec * tait_mat;
+            if (!basis_vec.isTransposed) basis_vec = basis_vec.transposed() * tait_mat;
+            else basis_vec = basis_vec * tait_mat;
             if (basis_vec.isTransposed) basis_vec.transpose();
         }
 
@@ -86,6 +95,7 @@ namespace Engine {
 
         if (n_dir.isTransposed) n_dir.transpose();
         set_property("direction", n_dir);
+        was_move = true;
     }
 
     LowLevel::Vector<floatType> GameObject::rotate_vec3(const LowLevel::Vector<floatType>& vec,
@@ -106,6 +116,7 @@ namespace Engine {
         if (pos.size() != cs.space.dim()) throw std::exception(); // TODO: exception
 
         set_property("position", pos);
+        was_move = true;
     }
     void GameObject::set_direction(const LowLevel::Vector<floatType>& dir){
         if (dir.size() != cs.space.dim()) throw std::exception(); // TODO: exception
@@ -115,6 +126,7 @@ namespace Engine {
             rotate_3d(angles[0], angles[1], angles[2]);
         }
         set_property("direction", dir);
+        was_move = true;
     }
     // endregion
 

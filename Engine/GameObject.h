@@ -8,13 +8,15 @@
 namespace Engine {
 
     class GameObject: public Entity {
+    protected:
+        bool was_move = true;
     private:
         static std::vector<floatType> get_angles_rot(const LowLevel::Vector<floatType>&,
                                                      const LowLevel::Vector<floatType>&) ;
     public:
         LowLevel::CoordinateSystem<floatType> local_cs;
 
-        GameObject(const LowLevel::CoordinateSystem<floatType>& cs= LowLevel::CoordinateSystem<floatType>());
+        explicit GameObject(const LowLevel::CoordinateSystem<floatType>& cs= LowLevel::CoordinateSystem<floatType>());
         GameObject(const LowLevel::Point<floatType>&, const LowLevel::Vector<floatType>&,
                    const LowLevel::CoordinateSystem<floatType>& cs= LowLevel::CoordinateSystem<floatType>());
 
