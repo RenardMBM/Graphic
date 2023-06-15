@@ -8,6 +8,7 @@
 #include "Game.h"
 #include "GameObject.h"
 #include "GameCamera.h"
+#include "Canvas.h"
 
 //#include "../Lowlevel/LowLevel.h"
 

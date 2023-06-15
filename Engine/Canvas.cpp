@@ -2,26 +2,45 @@
 
 namespace Engine {
     Canvas::Canvas() = default;
-    Canvas::Canvas(const size_t& height, const size_t& width): n(height),
-                                                      m(width),
+    Canvas::Canvas(const size_t& height, const size_t& width): height(height),
+                                                               width(width),
                                                       distances(height, width, -1),
                                                       mask(height, width, false),
                                                       window(sf::RenderWindow(
-                                                              sf::VideoMode(height,
+                                                              sf::VideoMode(width,
                                                                                  height),
                                                                 "Game")),
                                                       is_open(true){}
-
+    Canvas::Canvas(const Canvas& other): height(other.height),
+                                         width(other.width),
+                                         distances(other.distances),
+                                         mask(other.mask),
+                                         is_open(other.is_open){
+        window.create(sf::VideoMode(width,
+                                    height),
+                      "Game");
+    }
+    Canvas& Canvas::operator=(const Canvas& other){
+        height = other.height;
+        width = other.width;
+        distances = other.distances;
+        mask = other.mask;
+        is_open = other.is_open;
+        window.create(sf::VideoMode(width,
+                                    height),
+                      "Game");
+        return *this;
+    }
     void Canvas::draw(){
-        auto *pixels  = new sf::Uint8[m * n * 4];
+        auto *pixels  = new sf::Uint8[width * height * 4];
 
         sf::Texture texture;
-        texture.create(m, n);
+        texture.create(width, height);
 
         sf::Sprite sprite(texture);
 
-        for (size_t i = 0; i < n; ++i) {
-            for (size_t j = 0; j < m; ++j) {
+        for (size_t i = 0; i < height; ++i) {
+            for (size_t j = 0; j < width; ++j) {
                 size_t k = i * j * 4;
                 if (mask[i][j]) {
                     pixels[k] = 255;
@@ -45,10 +64,10 @@ namespace Engine {
 
     void Canvas::update(GameCamera& camera,
                         const std::vector<std::shared_ptr<GameObject>>& objs){
-        LowLevel::Matrix<Ray> rays_mat = camera.get_rays_matrix(n, m);
+        LowLevel::Matrix<Ray> rays_mat = camera.get_rays_matrix(height, width);
 
-        for (size_t i = 0; i < n; ++i){
-            for (size_t j = 0; j < m; ++j){
+        for (size_t i = 0; i < height; ++i){
+            for (size_t j = 0; j < width; ++j){
                 if (mask[i][j]) continue;
 
                 Ray ray = rays_mat[i][j];
@@ -74,7 +93,7 @@ namespace Engine {
     }
 
     bool Canvas::close() const{
-        return is_open;
+        return !is_open;
     }
 
     void Canvas::exit(){

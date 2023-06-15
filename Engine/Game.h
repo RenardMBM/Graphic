@@ -15,9 +15,9 @@ namespace Engine {
         Game();
         Game(const LowLevel::CoordinateSystem<floatType>&, const EntitiesList&);
 
-        void run();
-        void update();
-        void exit();
+        virtual void run();
+        virtual void update();
+        virtual void exit();
 
         Entity get_entity_class();
         Ray get_ray_class(const LowLevel::Point<floatType>&, const LowLevel::Vector<floatType>&);
