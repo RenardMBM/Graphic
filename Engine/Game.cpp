@@ -14,6 +14,6 @@ namespace Engine {
     void Game::exit(){};
 
     Ray Game::get_ray_class(const LowLevel::Point<floatType>& init_pt, const LowLevel::Vector<floatType>& direction) {
-        return Ray(cs, init_pt, direction);
+        return {cs, init_pt, direction};
     }
 } // Engine

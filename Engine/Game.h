@@ -4,7 +4,6 @@
 #include "Entity.h"
 #include "Ray.h"
 #include "EntitiesList.h"
-#include "EntitiesList.h"
 #include "../LowLevel/LowLevel.h"
 
 namespace Engine {
